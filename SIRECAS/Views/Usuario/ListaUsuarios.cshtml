@@ -1,0 +1,70 @@
+﻿@model List<SIRECAS.Models.Usuario>
+@{
+    ViewData["Title"] = "Lista de Usuarios";
+}
+
+<h2 class="mb-4">👥 Usuarios Registrados</h2>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-primary">
+        <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Autorizado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var usuario in Model)
+        {
+            <tr>
+                <form asp-action="Actualizar" method="post">
+                    <input type="hidden" name="IdUsuario" value="@usuario.IdUsuario" />
+                <td>
+                    <input name="Nombre" class="form-control" value="@usuario.Nombre" />
+                </td>
+                <td>
+                    <input name="Email" class="form-control" value="@usuario.Email" />
+                </td>
+                <td>
+                    <select name="IdRol" class="form-select">
+                        <option value="1" selected="@(usuario.IdRol == 1)">Administrador</option>
+                        <option value="2" selected="@(usuario.IdRol == 2)">Editor</option>
+                        <option value="3" selected="@(usuario.IdRol == 3)">Visualizador</option>
+                    </select>
+                </td>
+                <td>
+                        @if (usuario.Autorizado.GetValueOrDefault())
+                        {
+                        <span class="badge bg-success">Sí</span>
+                        }
+                        else
+                        {
+                        <span class="badge bg-danger">No</span>
+                        }
+                </td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-sm btn-primary">Actualizar</button>
+                    </div>
+                </td>
+                </form>
+            </tr>
+            <tr>
+                <td colspan="5">
+                    <form asp-action="CambiarAutorizacion" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@usuario.IdUsuario" />
+                        <button class="btn btn-sm btn-warning">
+                            @(usuario.Autorizado == true ? "Desautorizar" : "Autorizar")
+                        </button>
+                    </form>
+                    <form asp-action="Eliminar" method="post" style="display:inline;" onsubmit="return confirm('¿Eliminar este usuario?');">
+                        <input type="hidden" name="id" value="@usuario.IdUsuario" />
+                        <button class="btn btn-sm btn-danger">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

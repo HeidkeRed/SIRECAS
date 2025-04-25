@@ -1,0 +1,98 @@
+﻿@{
+    ViewData["Title"] = "Formulario por secciones";
+    int id = (int)ViewBag.IdIdentificacion;
+}
+
+<h2>Completar Información del Edificio</h2>
+
+<ul class="list-group">
+    <li class="list-group-item">
+        <a asp-controller="DescripcionDelEdificio" asp-action="Registrar_Descripcion" asp-route-idIdentificacion="@id">
+            🏛️ Descripción del Edificio
+        </a>
+    </li>
+    <li class="list-group-item">
+        <a asp-controller="Cimiento" asp-action="Registrar_Cimiento" asp-route-idIdentificacion="@id">
+            🧱 Cimientos
+        </a>
+    </li>
+    <li class="list-group-item">
+        <a asp-controller="Estructura" asp-action="Registrar_Estructura" asp-route-idIdentificacion="@id">
+            🧱 Estructura
+        </a>
+    </li>
+    <li class="list-group-item">
+        <a asp-controller="Entrepiso" asp-action="Registrar_Entrepiso" asp-route-idIdentificacion="@id">
+            🧱 Entrepisos
+        </a>
+    </li>
+    <li class="list-group-item">
+        <a asp-controller="Cubierta" asp-action="Registrar_Cubierta" asp-route-idIdentificacion="@id">
+            🏠 Cubiertas
+        </a>
+    </li>
+    <li class="list-group-item">
+        <a asp-controller="AcabadosPiso" asp-action="Registrar_AcabadosPiso" asp-route-idIdentificacion="@id">
+            🪵 Acabados del Piso
+        </a>
+    </li>
+    <li class="list-group-item">
+        <a asp-controller="AcabadosMuro" asp-action="Registrar_AcabadosMuros" asp-route-idIdentificacion="@id">
+            🧱 Acabados del Muro
+        </a>
+    </li>
+    <li class="list-group-item">
+    <a asp-controller="AcabadosPlafone" asp-action="Registrar_AcabadosPlafone" asp-route-idIdentificacion="@id">
+        🧱 Acabados del Plafón
+    </a>
+    </li>
+    <li class="list-group-item">
+        <a asp-controller="Puerta" asp-action="Registrar_Puertas" asp-route-idIdentificacion="@id">
+            🚪 Puertas
+        </a>
+    </li>
+    <li class="list-group-item">
+        <a asp-controller="Ventana" asp-action="Registrar_Ventanas" asp-route-idIdentificacion="@id">
+            🪟 Ventanas
+        </a>
+    </li>
+    <li class="list-group-item">
+        <a asp-controller="Instalacione" asp-action="Registrar_Instalacione" asp-route-idIdentificacion="@id">
+            Instalaciones
+        </a>
+    </li>
+    <li class="list-group-item">
+        <a asp-controller="DatosHistorico" asp-action="Registrar_DatosHistorico" asp-route-idIdentificacion="@id">
+            Datos Historicos
+        </a>
+    </li>
+    <li class="list-group-item">
+        <a asp-controller="Artesacro" asp-action="Registro_Artesacro" asp-route-idIdentificacion="@id">
+            Artesacros
+        </a>
+    </li>
+    <li class="list-group-item">
+        <a asp-controller="DanoObservable" asp-action="Registro_Dano" asp-route-idIdentificacion="@id">
+            Daños Observables
+        </a>
+    </li>
+    <li class="list-group-item">
+        <a asp-controller="Trabajo" asp-action="Registrar_Trabajo" asp-route-idIdentificacion="@id">
+            Otros Registros
+        </a>
+    </li>
+    <li class="list-group-item">
+        <a asp-controller="Planimetria" asp-action="Registrar_Planimetria" asp-route-idIdentificacion="@id">
+            Planimetria
+        </a>
+    </li>
+    <li class="list-group-item">
+        <a asp-controller="DocumentoLegal" asp-action="Registrar_DocumentoLegal" asp-route-idIdentificacion="@id">
+            Documentacion Legal
+        </a>
+    </li>
+
+
+    <!-- Agrega más según tus secciones -->
+</ul>
+

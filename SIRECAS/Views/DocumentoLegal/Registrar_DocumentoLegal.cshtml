@@ -1,0 +1,35 @@
+﻿@model SIRECAS.Models.ViewModels.DocumentoLegalViewModel
+
+@{
+    ViewData["Title"] = "Registro de Documento Legal";
+}
+
+<h2 class="mb-4">📄 Registro de Documento Legal</h2>
+
+<form asp-action="Registrar_DocumentoLegal" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="IdIdentificacion" />
+
+    <div class="mb-3">
+        <label asp-for="NombreDocumento" class="form-label">Nombre del Documento</label>
+        <input asp-for="NombreDocumento" class="form-control" placeholder="Ej: Escritura pública, Permiso INAH..." />
+        <span asp-validation-for="NombreDocumento" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Archivo" class="form-label">Seleccionar Archivo</label>
+        <input asp-for="Archivo" type="file" class="form-control" />
+        <small class="text-muted">Formatos permitidos: PDF, DOCX, JPG, PNG, entre otros.</small>
+        <span asp-validation-for="Archivo" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar Documento</button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

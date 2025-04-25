@@ -1,0 +1,80 @@
+﻿@model SIRECAS.Models.ViewModels.DanoObservableViewModel
+
+@{
+    ViewData["Title"] = "Registro de Daños Observables";
+}
+
+<h2 class="mb-4">🚧 Registro de Daños Observables</h2>
+
+<form asp-action="Registro_Dano" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="IdIdentificacion" />
+
+    <div class="mb-3">
+        <label asp-for="Tipo" class="form-label">Tipo de Daño</label>
+        <select asp-for="Tipo" class="form-select">
+            <option value="">Seleccione...</option>
+            <option>Grieta</option>
+            <option>Hundimientos</option>
+            <option>Elementos Inclinados</option>
+            <option>Acero Expuesto</option>
+            <option>Desprendimientos</option>
+            <option>Pérdida de elementos</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Zona" class="form-label">Zona</label>
+        <select asp-for="Zona" class="form-select">
+            <option value="">Seleccione...</option>
+            <option>Muro</option>
+            <option>Columnas</option>
+            <option>Losa</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Estado" class="form-label">Estado</label>
+        <select asp-for="Estado" class="form-select">
+            <option value="">Seleccione...</option>
+            <option>Grave</option>
+            <option>Regular</option>
+            <option>Ligero</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="FotosSubidas" class="form-label">Subir fotografías del daño</label>
+        <input type="file" id="FotosSubidas" name="FotosSubidas" class="form-control" multiple onchange="generarCamposDescripcion()" />
+        <small class="text-muted">Puedes seleccionar varias imágenes. Cada una puede tener su propia observación.</small>
+    </div>
+
+    <div id="contenedor-descripciones" class="mt-3"></div>
+
+    <button type="submit" class="btn btn-success">Guardar Daño</button>
+</form>
+
+@section Scripts {
+    <script>
+        function generarCamposDescripcion() {
+            const input = document.getElementById("FotosSubidas");
+            const contenedor = document.getElementById("contenedor-descripciones");
+            contenedor.innerHTML = ""; // Limpiar anteriores
+
+            for (let i = 0; i < input.files.length; i++) {
+                const file = input.files[i];
+
+                const campo = document.createElement("div");
+                campo.className = "mb-2";
+
+                campo.innerHTML = `
+                    <label class="form-label">Observación para: <strong>${file.name}</strong></label>
+                    <input type="text" name="Observaciones[${i}]" class="form-control" placeholder="Opcional" />
+                `;
+
+                contenedor.appendChild(campo);
+            }
+        }
+
+    </script>
+}

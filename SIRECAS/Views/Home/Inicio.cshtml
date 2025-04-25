@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Panel de Inicio";
+    var nombre = Context.Session.GetString("NombreUsuario") ?? "Usuario";
+}
+
+<div class="text-center mt-5">
+    <h1 class="display-4">Bienvenido, @nombre 👋</h1>
+    <p class="lead">Has iniciado sesión correctamente en el sistema SIRECAS.</p>
+
+    <div class="mt-4">
+        <a class="btn btn-success btn-lg" asp-controller="Identificacion" asp-action="Lista_Identificaciones">
+            Ver registros
+        </a>
+
+        <a class="btn btn-outline-secondary btn-lg ms-2" asp-controller="Login" asp-action="CerrarSesion">
+            Cerrar sesión
+        </a>
+    </div>
+</div>

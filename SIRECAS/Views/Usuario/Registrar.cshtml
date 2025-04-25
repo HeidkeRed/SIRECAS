@@ -1,0 +1,53 @@
+﻿@model SIRECAS.Models.ViewModels.RegistrarUsuarioViewModel
+
+@{
+    ViewData["Title"] = "Registrar Usuario";
+}
+
+<h2>Registrar Nuevo Usuario</h2>
+
+@if (TempData["Exito"] != null)
+{
+    <div class="alert alert-success">@TempData["Exito"]</div>
+}
+
+<form asp-action="Registrar" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label asp-for="Nombre" class="form-label"></label>
+        <input asp-for="Nombre" class="form-control" />
+        <span asp-validation-for="Nombre" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Contraseña" class="form-label"></label>
+        <input asp-for="Contraseña" class="form-control" />
+        <span asp-validation-for="Contraseña" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="IdRol" class="form-label"></label>
+        <select asp-for="IdRol" class="form-select">
+            <option value="2">Editor</option>
+            <option value="3">Visitante</option>
+        </select>
+    </div>
+
+    <div class="form-check mb-3">
+        <input asp-for="Autorizado" class="form-check-input" />
+        <label asp-for="Autorizado" class="form-check-label"></label>
+    </div>
+
+    <button type="submit" class="btn btn-success">Registrar Usuario</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

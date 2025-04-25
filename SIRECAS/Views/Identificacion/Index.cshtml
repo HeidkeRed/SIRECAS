@@ -1,0 +1,140 @@
+﻿@model SIRECAS.Models.ViewModels.IdentificacionViewModel
+
+@{
+    ViewData["Title"] = "Registro de Edificio";
+}
+
+<h2>Registro de Identificación</h2>
+
+<form asp-action="Index" method="post">
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="mb-3">
+        <label asp-for="NombreParroquia"></label>
+        <input asp-for="NombreParroquia" class="form-control" />
+        <span asp-validation-for="NombreParroquia" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="NombreTitular"></label>
+        <input asp-for="NombreTitular" class="form-control" />
+        <span asp-validation-for="NombreTitular" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CorreoElectronico"></label>
+        <input asp-for="CorreoElectronico" class="form-control" type="email" />
+        <span asp-validation-for="CorreoElectronico" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Telefono"></label>
+        <input asp-for="Telefono" class="form-control" />
+        <span asp-validation-for="Telefono" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="AnioConstruccion"></label>
+        <input asp-for="AnioConstruccion" class="form-control" type="number" />
+        <span asp-validation-for="AnioConstruccion" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Calle"></label>
+        <input asp-for="Calle" class="form-control" />
+        <span asp-validation-for="Calle" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="NumeroEdificio"></label>
+        <input asp-for="NumeroEdificio" class="form-control" />
+        <span asp-validation-for="NumeroEdificio" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="EntreCalles"></label>
+        <input asp-for="EntreCalles" class="form-control" />
+        <span asp-validation-for="EntreCalles" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Colonia"></label>
+        <input asp-for="Colonia" class="form-control" />
+        <span asp-validation-for="Colonia" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CodigoPostal"></label>
+        <input asp-for="CodigoPostal" class="form-control" />
+        <span asp-validation-for="CodigoPostal" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Municipio"></label>
+        <input asp-for="Municipio" class="form-control" />
+        <span asp-validation-for="Municipio" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="UbicacionManzana"></label>
+        <select asp-for="UbicacionManzana" class="form-control">
+            <option value="">Seleccione una opción</option>
+            <option value="esquina">Esquina</option>
+            <option value="medio">Medio</option>
+            <option value="aislado">Aislado</option>
+        </select>
+        <span asp-validation-for="UbicacionManzana" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ConstruccionesColindantes"></label>
+        <input asp-for="ConstruccionesColindantes" class="form-control" />
+        <span asp-validation-for="ConstruccionesColindantes" class="text-danger"></span>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="Frente">Frente (m)</label>
+            <input asp-for="Frente" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="Frente" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="Fondo">Fondo (m)</label>
+            <input asp-for="Fondo" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="Fondo" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="M2Terreno">M² de Terreno</label>
+            <input asp-for="M2Terreno" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="M2Terreno" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="M2Construccion">M² de Construcción</label>
+            <input asp-for="M2Construccion" class="form-control" type="number" step="0.01" />
+            <span asp-validation-for="M2Construccion" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="CoordenadaX">Coordenada X (Longitud)</label>
+            <input asp-for="CoordenadaX" class="form-control" type="number" step="any" />
+            <span asp-validation-for="CoordenadaX" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="CoordenadaY">Coordenada Y (Latitud)</label>
+            <input asp-for="CoordenadaY" class="form-control" type="number" step="any" />
+            <span asp-validation-for="CoordenadaY" class="text-danger"></span>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success mt-3">Guardar registro</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,36 @@
+﻿@model SIRECAS.Models.ViewModels.PlanimetriaExistenteViewModel
+
+@{
+    ViewData["Title"] = "Registro de Planimetría";
+}
+
+<h2 class="mb-4">📐 Registro de Planimetría Existente</h2>
+
+<form asp-action="Registrar_Planimetria" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="IdIdentificacion" />
+
+    <div class="mb-3">
+        <label asp-for="TipoPlanimetria" class="form-label">Tipo de Planimetría</label>
+        <select asp-for="TipoPlanimetria" class="form-select" required>
+            <option value="">Seleccione...</option>
+            <option>Planos impresos</option>
+            <option>Planos a mano</option>
+            <option>Modelos 3D</option>
+            <option>Maqueta</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Archivo" class="form-label">Archivo</label>
+        <input type="file" asp-for="Archivo" class="form-control" accept=".blend,.pdf,.jpg,.png,.zip,.rar" />
+        <span asp-validation-for="Archivo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Observaciones" class="form-label">Observaciones (opcional)</label>
+        <textarea asp-for="Observaciones" class="form-control" rows="3"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar Planimetría</button>
+</form>

@@ -1,0 +1,647 @@
+﻿@model SIRECAS.Models.Identificacion
+
+<h2 class="mb-4">📌 Identificación General</h2>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <p><strong>Nombre de la parroquia:</strong> @Model.NombreParroquia</p>
+        <p><strong>Nombre del titular:</strong> @Model.NombreTitular</p>
+        <p><strong>Correo electrónico:</strong> @(Model.CorreoElectronico ?? "No especificado")</p>
+        <p><strong>Teléfono:</strong> @(Model.Telefono ?? "No especificado")</p>
+        <p><strong>Año de construcción:</strong> @(Model.AnioConstruccion?.ToString() ?? "No especificado")</p>
+
+        <p><strong>Domicilio:</strong> @Model.Calle @Model.NumeroEdificio, @Model.Colonia, CP: @(Model.CodigoPostal ?? "N/A")</p>
+        <p><strong>Entre calles:</strong> @(Model.EntreCalles ?? "No especificado")</p>
+
+        <p><strong>Municipio:</strong> @Model.Municipio</p>
+        <p><strong>Ubicación en manzana:</strong> @(Model.UbicacionManzana ?? "No especificado")</p>
+        <p><strong>Construcciones colindantes:</strong> @(Model.ConstruccionesColindantes ?? "No especificado")</p>
+
+        <p>
+            <strong>Dimensiones del terreno:</strong>
+            Frente: @(Model.Frente?.ToString("0.00") ?? "0.00") m,
+            Fondo: @(Model.Fondo?.ToString("0.00") ?? "0.00") m
+        </p>
+
+        <p><strong>M² de terreno:</strong> @(Model.M2terreno?.ToString("0.00") ?? "0.00")</p>
+        <p><strong>M² de construcción:</strong> @(Model.M2construccion?.ToString("0.00") ?? "0.00")</p>
+
+        <p>
+            <strong>Coordenadas:</strong>
+            Lat: @(Model.CoordenadaY?.ToString("F7") ?? "N/A"),
+            Lon: @(Model.CoordenadaX?.ToString("F7") ?? "N/A")
+            @if (Model.CoordenadaY.HasValue && Model.CoordenadaX.HasValue)
+            {
+                <a class="ms-2 btn btn-sm btn-outline-primary"
+                   target="_blank"
+                   href="https://www.google.com/maps/search/?api=1&query=@Model.CoordenadaY,@Model.CoordenadaX">
+                    Ver en Google Maps
+                </a>
+            }
+        </p>
+
+    </div>
+</div>
+@if (Model.DescripcionDelEdificios != null && Model.DescripcionDelEdificios.Any())
+{
+    var desc = Model.DescripcionDelEdificios.First();
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <h4 class="mb-0">🏛️ Descripción del Edificio</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Descripción general:</strong></p>
+            <p>@(desc.DescripcionGeneral ?? "No especificado")</p>
+
+            <p><strong>Descripción de la fachada:</strong></p>
+            <p>@(desc.DescripcionFachada ?? "No especificado")</p>
+
+            @if (!string.IsNullOrWhiteSpace(desc.FotografiaFachada))
+            {
+                <p><strong>Fotografía de la fachada:</strong></p>
+                <img src="@desc.FotografiaFachada" alt="Fachada" class="img-fluid rounded shadow" style="max-width: 100%; max-height: 400px;" />
+            }
+            else
+            {
+                <p><strong>Fotografía de la fachada:</strong> No disponible</p>
+            }
+        </div>
+    </div>
+}
+
+@if (
+  Model.Cimiento != null || Model.Estructura != null || Model.Entrepiso != null ||
+  Model.Cubierta != null || Model.AcabadosPiso != null || Model.AcabadosMuro != null ||
+  Model.AcabadosPlafone != null || Model.Puerta != null || Model.Ventana != null || Model.Instalacione != null ||
+  Model.DatosHistoricos !=null || Model.ElementoArteSacros !=null || Model.RegistroTrabajos !=null || Model.PlanimetriaExistentes != null
+)
+{
+    <div class="card shadow-sm mb-5">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">🧱 Materiales y Sistemas Constructivos</h4>
+        </div>
+        <div class="card-body">
+            <div class="row row-cols-1 g-4">
+
+                @* Cimientos *@
+                @if (Model.Cimiento != null)
+                {
+                    var c = Model.Cimiento;
+                    <div class="col">
+                        <div class="border-start border-4 border-primary ps-3 mb-2">
+                            <h5 class="fw-bold text-dark">Cimientos</h5>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            @if (c.TierraCompactada == true)
+                            {
+                                <li class="list-group-item">Tierra compactada</li>
+                            }
+                            @if (c.MamposteriaPiedra == true)
+                            {
+                                <li class="list-group-item">Mampostería de piedra</li>
+                            }
+                            @if (c.ZapatasAisladas == true)
+                            {
+                                <li class="list-group-item">Zapatas aisladas</li>
+                            }
+                            @if (c.ZapatasCorridas == true)
+                            {
+                                <li class="list-group-item">Zapatas corridas</li>
+                            }
+                            @if (c.LosaCimentacion == true)
+                            {
+                                <li class="list-group-item">Losa de cimentación</li>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(c.OtrosCimientos))
+                            {
+                                <li class="list-group-item"><strong>Otros:</strong> @c.OtrosCimientos</li>
+                            }
+                        </ul>
+                        <p class="mt-2"><strong>Observaciones:</strong> @(c.Observaciones ?? "Ninguna")</p>
+                    </div>
+                }
+
+                @* Estructura *@
+                @if (Model.Estructura != null)
+                {
+                    var e = Model.Estructura;
+                    <div class="col">
+                        <div class="border-start border-4 border-primary ps-3 mb-2">
+                            <h5 class="fw-bold text-dark">Estructura</h5>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            @if (e.MuroPiedra == true)
+                            {
+                                <li class="list-group-item">Muro de piedra</li>
+                            }
+                            @if (e.MuroBlock == true)
+                            {
+                                <li class="list-group-item">Muro de block</li>
+                            }
+                            @if (e.MuroLadrillo == true)
+                            {
+                                <li class="list-group-item">Muro de ladrillo</li>
+                            }
+                            @if (e.MuroAdobe == true)
+                            {
+                                <li class="list-group-item">Muro de adobe</li>
+                            }
+                            @if (e.MuroBahareque == true)
+                            {
+                                <li class="list-group-item">Muro de bahareque</li>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(e.OtroTipoMuro))
+                            {
+                                <li class="list-group-item"><strong>Otro muro:</strong> @e.OtroTipoMuro</li>
+                            }
+                            @if (e.ColumnaConcreto == true)
+                            {
+                                <li class="list-group-item">Columna de concreto</li>
+                            }
+                            @if (e.ColumnaPiedra == true)
+                            {
+                                <li class="list-group-item">Columna de piedra</li>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(e.OtroTipoColumna))
+                            {
+                                <li class="list-group-item"><strong>Otra columna:</strong> @e.OtroTipoColumna</li>
+                            }
+                        </ul>
+                        <p class="mt-2"><strong>Observaciones:</strong> @(e.Observaciones ?? "Ninguna")</p>
+                    </div>
+                }
+
+                @* Entrepisos *@
+                @if (Model.Entrepiso != null)
+                {
+                    var ent = Model.Entrepiso;
+                    <div class="col">
+                        <div class="border-start border-4 border-primary ps-3 mb-2">
+                            <h5 class="fw-bold text-dark">Entrepisos</h5>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            @if (ent.LosaMaciza == true)
+                            {
+                                <li class="list-group-item">Losa maciza</li>
+                            }
+                            @if (ent.LosaReticular == true)
+                            {
+                                <li class="list-group-item">Losa reticular</li>
+                            }
+                            @if (ent.ViguetaBovedilla == true)
+                            {
+                                <li class="list-group-item">Vigueta y bovedilla</li>
+                            }
+                            @if (ent.NoAplica == true)
+                            {
+                                <li class="list-group-item">No aplica</li>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(ent.OtrosEntrepisos))
+                            {
+                                <li class="list-group-item"><strong>Otros:</strong> @ent.OtrosEntrepisos</li>
+                            }
+                        </ul>
+                        <p class="mt-2"><strong>Observaciones:</strong> @(ent.Observaciones ?? "Ninguna")</p>
+                    </div>
+                }
+
+                @* Cubiertas *@
+                @if (Model.Cubierta != null)
+                {
+                    var cub = Model.Cubierta;
+                    <div class="col">
+                        <div class="border-start border-4 border-primary ps-3 mb-2">
+                            <h5 class="fw-bold text-dark">Cubiertas</h5>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            @if (cub.Lamina == true)
+                            {
+                                <li class="list-group-item">Lámina</li>
+                            }
+                            @if (cub.Concreto == true)
+                            {
+                                <li class="list-group-item">Concreto</li>
+                            }
+                            @if (cub.Boveda == true)
+                            {
+                                <li class="list-group-item">Bóveda</li>
+                            }
+                            @if (cub.Cupula == true)
+                            {
+                                <li class="list-group-item">Cúpula</li>
+                            }
+                            @if (cub.Palma == true)
+                            {
+                                <li class="list-group-item">Palma</li>
+                            }
+                            @if (cub.LosaPlana == true)
+                            {
+                                <li class="list-group-item">Losa plana</li>
+                            }
+                            @if (cub.DosAguas == true)
+                            {
+                                <li class="list-group-item">Dos aguas</li>
+                            }
+                            @if (cub.TresCuatroAguas == true)
+                            {
+                                <li class="list-group-item">Tres o cuatro aguas</li>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(cub.OtrasCubiertas))
+                            {
+                                <li class="list-group-item"><strong>Otras:</strong> @cub.OtrasCubiertas</li>
+                            }
+                        </ul>
+                        <p class="mt-2"><strong>Observaciones:</strong> @(cub.Observaciones ?? "Ninguna")</p>
+                    </div>
+                }
+
+                @* Puertas *@
+                @if (Model.Puerta != null)
+                {
+                    var p = Model.Puerta;
+                    <div class="col">
+                        <div class="border-start border-4 border-primary ps-3 mb-2">
+                            <h5 class="fw-bold text-dark">Puertas</h5>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            @if (p.Madera == true)
+                            {
+                                <li class="list-group-item">Madera</li>
+                            }
+                            @if (p.Herreria == true)
+                            {
+                                <li class="list-group-item">Herrería</li>
+                            }
+                            @if (p.Aluminio == true)
+                            {
+                                <li class="list-group-item">Aluminio</li>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(p.OtrosMateriales))
+                            {
+                                <li class="list-group-item"><strong>Otros:</strong> @p.OtrosMateriales</li>
+                            }
+                        </ul>
+                        <p class="mt-2"><strong>Observaciones:</strong> @(p.Observaciones ?? "Ninguna")</p>
+                    </div>
+                }
+
+                @* Ventanas *@
+                @if (Model.Ventana != null)
+                {
+                    var v = Model.Ventana;
+                    <div class="col">
+                        <div class="border-start border-4 border-primary ps-3 mb-2">
+                            <h5 class="fw-bold text-dark">Ventanas</h5>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            @if (v.Madera == true)
+                            {
+                                <li class="list-group-item">Madera</li>
+                            }
+                            @if (v.Herreria == true)
+                            {
+                                <li class="list-group-item">Herrería</li>
+                            }
+                            @if (v.Aluminio == true)
+                            {
+                                <li class="list-group-item">Aluminio</li>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(v.OtrosMateriales))
+                            {
+                                <li class="list-group-item"><strong>Otros:</strong> @v.OtrosMateriales</li>
+                            }
+                        </ul>
+                        <p class="mt-2"><strong>Observaciones:</strong> @(v.Observaciones ?? "Ninguna")</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+                @* Instalaciones *@
+                @if (Model.Instalacione != null)
+                {
+                    var ins = Model.Instalacione;
+                    <div class="card shadow-sm mb-5">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0">🔌 Instalaciones</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row row-cols-1 g-4">
+                                <div class="col">
+                                    <div class="border-start border-4 border-primary ps-3 mb-2">
+                                        <h5 class="fw-bold text-dark">4.1 Instalación Eléctrica</h5>
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                        @if (ins.ElectricaVisible == true)
+                                        {
+                                            <li class="list-group-item">Visible</li>
+                                        }
+                                        @if (ins.ElectricaOculta == true)
+                                        {
+                                            <li class="list-group-item">Oculta</li>
+                                        }
+                                    </ul>
+                                    <p><strong>Observaciones:</strong> @(ins.ObservacionesElectrica ?? "Ninguna")</p>
+                                </div>
+
+                                <div class="col">
+                                    <div class="border-start border-4 border-primary ps-3 mb-2">
+                                        <h5 class="fw-bold text-dark">4.2 Instalación Sanitaria</h5>
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                        @if (ins.SanitariaVisible == true)
+                                        {
+                                            <li class="list-group-item">Visible</li>
+                                        }
+                                        @if (ins.SanitariaOculta == true)
+                                        {
+                                            <li class="list-group-item">Oculta</li>
+                                        }
+                                    </ul>
+                                    <p><strong>Observaciones:</strong> @(ins.ObservacionesSanitaria ?? "Ninguna")</p>
+                                </div>
+
+                                <div class="col">
+                                    <div class="border-start border-4 border-primary ps-3 mb-2">
+                                        <h5 class="fw-bold text-dark">4.3 Instalación Hidráulica</h5>
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                        @if (ins.HidraulicaVisible == true)
+                                        {
+                                            <li class="list-group-item">Visible</li>
+                                        }
+                                        @if (ins.HidraulicaOculta == true)
+                                        {
+                                            <li class="list-group-item">Oculta</li>
+                                        }
+                                    </ul>
+                                    <p><strong>Observaciones:</strong> @(ins.ObservacionesHidraulica ?? "Ninguna")</p>
+                                </div>
+
+                                <div class="col">
+                                    <div class="border-start border-4 border-primary ps-3 mb-2">
+                                        <h5 class="fw-bold text-dark">4.4 Instalación de Gas</h5>
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                        @if (ins.GasVisible == true)
+                                        {
+                                            <li class="list-group-item">Visible</li>
+                                        }
+                                        @if (ins.GasOculta == true)
+                                        {
+                                            <li class="list-group-item">Oculta</li>
+                                        }
+                                    </ul>
+                                    <p><strong>Observaciones:</strong> @(ins.ObservacionesGas ?? "Ninguna")</p>
+                                </div>
+
+                                <div class="col">
+                                    <div class="border-start border-4 border-primary ps-3 mb-2">
+                                        <h5 class="fw-bold text-dark">4.5 Instalación Telefónica</h5>
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                        @if (ins.TelefoniaVisible == true)
+                                        {
+                                            <li class="list-group-item">Visible</li>
+                                        }
+                                        @if (ins.TelefoniaOculta == true)
+                                        {
+                                            <li class="list-group-item">Oculta</li>
+                                        }
+                                    </ul>
+                                    <p><strong>Observaciones:</strong> @(ins.ObservacionesTelefonia ?? "Ninguna")</p>
+                                </div>
+
+                                <div class="col">
+                                    <div class="border-start border-4 border-primary ps-3 mb-2">
+                                        <h5 class="fw-bold text-dark">4.6 Otras Instalaciones</h5>
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                        @if (ins.OtroVisible == true)
+                                        {
+                                            <li class="list-group-item">Visible</li>
+                                        }
+                                        @if (ins.OtroOculta == true)
+                                        {
+                                            <li class="list-group-item">Oculta</li>
+                                        }
+                                    </ul>
+                                    <p><strong>Observaciones:</strong> @(ins.ObservacionesOtro ?? "Ninguna")</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    @if (Model.DatosHistoricos != null && Model.DatosHistoricos.Any())
+                    {
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-secondary text-white">
+                                <h4 class="mb-0">📚 Datos Históricos</h4>
+                            </div>
+                            <div class="card-body">
+                                @foreach (var dato in Model.DatosHistoricos.OrderByDescending(d => d.FechaEvento))
+                                {
+                                    <div class="mb-3 border-bottom pb-2">
+                                        <h5 class="text-primary">@dato.Titulo</h5>
+                                        <p><strong>Fecha:</strong> @(dato.FechaEvento?.ToString("dd/MM/yyyy") ?? "Sin especificar")</p>
+                                        <p>@dato.Descripcion</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.ElementoArteSacros != null && Model.ElementoArteSacros.Any())
+                    {
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-warning">
+                                <h4 class="mb-0">🖼️ Elementos de Arte Sacro</h4>
+                            </div>
+                            <div class="card-body">
+                                @foreach (var elemento in Model.ElementoArteSacros)
+                                {
+                                    <div class="mb-4">
+                                        <h5 class="text-dark">📌 Sección: @elemento.Seccion</h5>
+                                        @if (!string.IsNullOrEmpty(elemento.Subtipo))
+                                        {
+                                            <p><strong>Subtipo:</strong> @elemento.Subtipo</p>
+                                        }
+                                        @if (!string.IsNullOrEmpty(elemento.Nombre))
+                                        {
+                                            <p><strong>Nombre:</strong> @elemento.Nombre</p>
+                                        }
+                                        @if (!string.IsNullOrEmpty(elemento.Descripcion))
+                                        {
+                                            <p><strong>Descripción:</strong> @elemento.Descripcion</p>
+                                        }
+                                        <p><strong>Fecha de registro:</strong> @(elemento.FechaRegistro?.ToString("dd/MM/yyyy") ?? "No especificada")</p>
+
+                                        @if (elemento.ArteSacroFotos != null && elemento.ArteSacroFotos.Any())
+                                        {
+                                            <div class="row g-3">
+                                                @foreach (var foto in elemento.ArteSacroFotos)
+                                                {
+                                                    <div class="col-md-4">
+                                                        <div class="card shadow-sm">
+                                                            <img src="@foto.RutaArchivo" class="card-img-top" style="max-height: 200px; object-fit: cover;" alt="Foto de arte sacro" />
+                                                            @if (!string.IsNullOrEmpty(foto.Descripcion))
+                                                            {
+                                                                <div class="card-body">
+                                                                    <p class="card-text">@foto.Descripcion</p>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <p class="text-muted">No hay fotografías registradas para este elemento.</p>
+                                        }
+                                        <hr />
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.DanoObservables != null && Model.DanoObservables.Any())
+                    {
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-danger text-white">
+                                <h4 class="mb-0">⚠️ Daños Observables</h4>
+                            </div>
+                            <div class="card-body">
+                                @foreach (var dano in Model.DanoObservables)
+                                {
+                                    <div class="mb-4">
+                                        <h5 class="text-dark">🔧 Tipo: @dano.Tipo</h5>
+                                        <p><strong>Zona:</strong> @dano.Zona</p>
+                                        <p><strong>Estado:</strong> @dano.Estado</p>
+
+                                        @if (dano.DanoFotos != null && dano.DanoFotos.Any())
+                                        {
+                                            <div class="row g-3">
+                                                @foreach (var foto in dano.DanoFotos)
+                                                {
+                                                    <div class="col-md-4">
+                                                        <div class="card shadow-sm">
+                                                            <img src="@foto.RutaArchivo" class="card-img-top" style="max-height: 200px; object-fit: cover;" alt="Foto del daño" />
+                                                            @if (!string.IsNullOrEmpty(foto.Observacion))
+                                                            {
+                                                                <div class="card-body">
+                                                                    <p class="card-text">@foto.Observacion</p>
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <p class="text-muted">No hay fotografías registradas para este daño.</p>
+                                        }
+                                        <hr />
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    @if (Model.RegistroTrabajos != null && Model.RegistroTrabajos.Any())
+                    {
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-dark text-white">
+                                <h4 class="mb-0">📝 Trabajos Realizados</h4>
+                            </div>
+                            <div class="card-body">
+                                @foreach (var trabajo in Model.RegistroTrabajos.OrderByDescending(t => t.FechaTrabajo))
+                                {
+                                    <div class="mb-3 border-bottom pb-2">
+                                        <p><strong>Tipo de trabajo:</strong> @(trabajo.TipoRegistro ?? "No especificado")</p>
+                                        @if (!string.IsNullOrWhiteSpace(trabajo.Descripcion))
+                                        {
+                                            <p><strong>Descripción:</strong> @trabajo.Descripcion</p>
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(trabajo.EmpresaResponsable))
+                                        {
+                                            <p><strong>Empresa responsable:</strong> @trabajo.EmpresaResponsable</p>
+                                        }
+                                        <p><strong>Fecha:</strong> @(trabajo.FechaTrabajo?.ToString("dd/MM/yyyy") ?? "Sin especificar")</p>
+                                        @if (!string.IsNullOrWhiteSpace(trabajo.Observaciones))
+                                        {
+                                            <p><strong>Observaciones:</strong> @trabajo.Observaciones</p>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+
+        @if (Model.PlanimetriaExistentes != null && Model.PlanimetriaExistentes.Any())
+        {
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">📁 Planimetría Existente</h4>
+                </div>
+                <div class="card-body">
+                    @foreach (var doc in Model.PlanimetriaExistentes)
+                    {
+                        <div class="border rounded p-3 mb-3 shadow-sm">
+                            <p><strong>Tipo de planimetría:</strong> @doc.TipoPlanimetria</p>
+
+                            @if (!string.IsNullOrEmpty(doc.Observaciones))
+                            {
+                                <p><strong>Observaciones:</strong> @doc.Observaciones</p>
+                            }
+
+                            <a class="btn btn-sm btn-outline-primary" href="@doc.RutaArchivo" target="_blank" download>
+                                Descargar archivo
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        @if (Model.DocumentoLegals != null && Model.DocumentoLegals.Any())
+        {
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h4 class="mb-0">📄 Documentos Legales</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        @foreach (var doc in Model.DocumentoLegals)
+                        {
+                            <li class="list-group-item">
+                                <a href="@doc.RutaArchivo" target="_blank">
+                                    @doc.NombreDocumento
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+
+
+
+
+
+                }
+
+
+
+
+
+
+
+            
+        
+}

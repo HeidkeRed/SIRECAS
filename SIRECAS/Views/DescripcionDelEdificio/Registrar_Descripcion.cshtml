@@ -1,0 +1,27 @@
+﻿@model SIRECAS.Models.ViewModels.DescripcionDelEdificioViewModel
+
+<h2>Descripción del Edificio</h2>
+
+<form asp-action="Registrar_Descripcion" method="post" enctype="multipart/form-data">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" asp-for="IdIdentificacion" />
+
+    <div class="mb-3">
+        <label asp-for="DescripcionGeneral"></label>
+        <textarea asp-for="DescripcionGeneral" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="DescripcionFachada"></label>
+        <textarea asp-for="DescripcionFachada" class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Foto"></label>
+        <input asp-for="Foto" type="file" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar descripción</button>
+</form>
+

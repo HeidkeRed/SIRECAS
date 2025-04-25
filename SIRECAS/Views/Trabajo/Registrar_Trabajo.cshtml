@@ -1,0 +1,47 @@
+﻿@model SIRECAS.Models.ViewModels.RegistroTrabajoViewModel
+
+@{
+    ViewData["Title"] = "Registrar Trabajo";
+}
+
+<h2 class="mb-4">🛠️ Registrar Trabajo/Alteraciones Realizados</h2>
+
+<form asp-action="Registrar_Trabajo" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="IdIdentificacion" />
+
+    <div class="mb-3">
+        <label asp-for="TipoRegistro" class="form-label">Tipo de trabajo realizado</label>
+        <select asp-for="TipoRegistro" class="form-select">
+            <option value="">Seleccione...</option>
+            <option>Alteraciones</option>
+            <option>Remodelaciones</option>
+            <option>Ampliaciones</option>
+            <option>Trabajos de impermeabilización en cubiertas</option>
+            <option>Otros</option>
+            <option>No se cuenta con nada</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Descripcion" class="form-label">Descripción del trabajo</label>
+        <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="EmpresaResponsable" class="form-label">Empresa responsable (opcional)</label>
+        <input asp-for="EmpresaResponsable" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="FechaTrabajo" class="form-label">Fecha del trabajo realizado</label>
+        <input asp-for="FechaTrabajo" type="date" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Observaciones" class="form-label">Observaciones adicionales</label>
+        <textarea asp-for="Observaciones" class="form-control" rows="3"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar trabajo</button>
+</form>

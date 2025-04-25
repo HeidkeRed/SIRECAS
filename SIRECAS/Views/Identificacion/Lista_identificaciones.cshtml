@@ -1,0 +1,44 @@
+﻿@model List<SIRECAS.Models.Identificacion>
+
+@{
+    ViewData["Title"] = "Lista de Registros";
+    var idRol = Context.Session.GetInt32("IdRol") ?? 0;
+}
+
+
+<h2>Identificaciones registradas</h2>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @foreach (var item in Model)
+    {
+        <div class="col">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">@item.NombreParroquia</h5>
+                    <p class="card-text"><strong>Titular:</strong> @item.NombreTitular</p>
+                    <p class="card-text"><strong>Correo:</strong> @item.CorreoElectronico</p>
+                    <p class="card-text"><strong>Teléfono:</strong> @item.Telefono</p>
+                    <p class="card-text"><strong>Municipio:</strong> @item.Municipio</p>
+                    <p class="card-text"><strong>Año de construcción:</strong> @item.AnioConstruccion</p>
+
+                    @if (idRol == 1 || idRol == 2)
+                    {
+                        <a asp-controller="Identificacion"
+                           asp-action="MenuSeccionesRegistro"
+                           asp-route-idIdentificacion="@item.IdIdentificacion"
+                           class="btn btn-primary mt-3">
+                            Completar información
+                        </a>
+                    }
+
+                    <a asp-action="Resumen" asp-controller="Identificacion" asp-route-idIdentificacion="@item.IdIdentificacion"
+                       class="btn btn-outline-info mt-2">
+                        📄 Ver resumen
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+

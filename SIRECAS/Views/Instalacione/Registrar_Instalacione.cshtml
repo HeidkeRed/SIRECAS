@@ -1,0 +1,131 @@
+﻿@model SIRECAS.Models.ViewModels.InstalacioneViewModel
+
+@{
+    ViewData["Title"] = "Registro de Instalaciones";
+}
+
+<h2 class="mb-4">🔌 Registro de Instalaciones</h2>
+
+<form asp-action="Registrar_Instalacione" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="IdIdentificacion" />
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-warning">
+            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+            {
+                <p>@error.ErrorMessage</p>
+            }
+        </div>
+    }
+
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">4.1 Instalación Eléctrica</div>
+        <div class="card-body row">
+            <div class="form-check col-md-2">
+                <input asp-for="ElectricaVisible" class="form-check-input" />
+                <label asp-for="ElectricaVisible" class="form-check-label">Visible</label>
+            </div>
+            <div class="form-check col-md-2">
+                <input asp-for="ElectricaOculta" class="form-check-input" />
+                <label asp-for="ElectricaOculta" class="form-check-label">Oculta</label>
+            </div>
+            <div class="col-md-8">
+                <label asp-for="ObservacionesElectrica"></label>
+                <input asp-for="ObservacionesElectrica" class="form-control" />
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">4.2 Instalación Sanitaria</div>
+        <div class="card-body row">
+            <div class="form-check col-md-2">
+                <input asp-for="SanitariaVisible" class="form-check-input" />
+                <label asp-for="SanitariaVisible" class="form-check-label">Visible</label>
+            </div>
+            <div class="form-check col-md-2">
+                <input asp-for="SanitariaOculta" class="form-check-input" />
+                <label asp-for="SanitariaOculta" class="form-check-label">Oculta</label>
+            </div>
+            <div class="col-md-8">
+                <label asp-for="ObservacionesSanitaria"></label>
+                <input asp-for="ObservacionesSanitaria" class="form-control" />
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">4.3 Instalación Hidráulica</div>
+        <div class="card-body row">
+            <div class="form-check col-md-2">
+                <input asp-for="HidraulicaVisible" class="form-check-input" />
+                <label asp-for="HidraulicaVisible" class="form-check-label">Visible</label>
+            </div>
+            <div class="form-check col-md-2">
+                <input asp-for="HidraulicaOculta" class="form-check-input" />
+                <label asp-for="HidraulicaOculta" class="form-check-label">Oculta</label>
+            </div>
+            <div class="col-md-8">
+                <label asp-for="ObservacionesHidraulica"></label>
+                <input asp-for="ObservacionesHidraulica" class="form-control" />
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">4.4 Instalación de Gas</div>
+        <div class="card-body row">
+            <div class="form-check col-md-2">
+                <input asp-for="GasVisible" class="form-check-input" />
+                <label asp-for="GasVisible" class="form-check-label">Visible</label>
+            </div>
+            <div class="form-check col-md-2">
+                <input asp-for="GasOculta" class="form-check-input" />
+                <label asp-for="GasOculta" class="form-check-label">Oculta</label>
+            </div>
+            <div class="col-md-8">
+                <label asp-for="ObservacionesGas"></label>
+                <input asp-for="ObservacionesGas" class="form-control" />
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-header bg-primary text-white">4.5 Instalación Telefónica</div>
+        <div class="card-body row">
+            <div class="form-check col-md-2">
+                <input asp-for="TelefoniaVisible" class="form-check-input" />
+                <label asp-for="TelefoniaVisible" class="form-check-label">Visible</label>
+            </div>
+            <div class="form-check col-md-2">
+                <input asp-for="TelefoniaOculta" class="form-check-input" />
+                <label asp-for="TelefoniaOculta" class="form-check-label">Oculta</label>
+            </div>
+            <div class="col-md-8">
+                <label asp-for="ObservacionesTelefonia"></label>
+                <input asp-for="ObservacionesTelefonia" class="form-control" />
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">4.6 Otras Instalaciones</div>
+        <div class="card-body row">
+            <div class="form-check col-md-2">
+                <input asp-for="OtroVisible" class="form-check-input" />
+                <label asp-for="OtroVisible" class="form-check-label">Visible</label>
+            </div>
+            <div class="form-check col-md-2">
+                <input asp-for="OtroOculta" class="form-check-input" />
+                <label asp-for="OtroOculta" class="form-check-label">Oculta</label>
+            </div>
+            <div class="col-md-8">
+                <label asp-for="ObservacionesOtro"></label>
+                <input asp-for="ObservacionesOtro" class="form-control" />
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-success">Guardar Instalaciones</button>
+</form>
