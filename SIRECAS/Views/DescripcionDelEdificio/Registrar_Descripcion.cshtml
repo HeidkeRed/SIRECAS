@@ -1,6 +1,8 @@
 ﻿@model SIRECAS.Models.ViewModels.DescripcionDelEdificioViewModel
 
 <h2>Descripción del Edificio</h2>
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
 
 <form asp-action="Registrar_Descripcion" method="post" enctype="multipart/form-data">
     @Html.AntiForgeryToken()

@@ -1,0 +1,70 @@
+﻿@model SIRECAS.Models.ElementoArteSacro
+
+@{
+    ViewData["Title"] = "Editar Fotos del Elemento de Arte Sacro";
+}
+<h2>Editar Fotos del Elemento de Arte Sacro: @Model.Nombre</h2>
+
+@if (Model.ArteSacroFotos != null && Model.ArteSacroFotos.Any())
+{
+    @foreach (var foto in Model.ArteSacroFotos)
+    {
+        <div class="card mb-3 shadow-sm">
+            <div class="row g-0">
+                <div class="col-md-4">
+                    <img src="@foto.RutaArchivo" class="card-img-top" style="max-height: 200px; object-fit: cover;" alt="Foto del elemento" />
+                </div>
+                <div class="col-md-8">
+                    <div class="card-body">
+                        <form asp-action="EditarFoto" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="IdFoto" value="@foto.IdFoto" />
+                            @Html.AntiForgeryToken()
+
+                            <div class="mb-2">
+                                <label>Descripción</label>
+                                <textarea name="Observacion" class="form-control">@foto.Descripcion</textarea>
+                            </div>
+
+                            <div class="mb-2">
+                                <label>Reemplazar foto (opcional)</label>
+                                <input type="file" name="NuevaFoto" class="form-control" />
+                            </div>
+
+                            <button type="submit" class="btn btn-success">Guardar cambios</button>
+                        </form>
+
+                        <form asp-action="EliminarFoto" method="post" class="mt-2">
+                            <input type="hidden" name="idFoto" value="@foto.IdFoto" />
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('¿Eliminar esta foto?')">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <p>No hay fotografías registradas para este elemento.</p>
+}
+
+<hr />
+
+<h4>Agregar nueva foto</h4>
+<form asp-action="AgregarFotos" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="IdElemento" value="@Model.IdElemento" />
+    @Html.AntiForgeryToken()
+
+    <div class="mb-2">
+        <label>Selecciona imagen</label>
+        <input type="file" name="NuevaFoto" class="form-control" required />
+    </div>
+
+    <div class="mb-2">
+        <label>Descripción (opcional)</label>
+        <textarea name="Observacion" class="form-control"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Agregar Foto</button>
+</form>

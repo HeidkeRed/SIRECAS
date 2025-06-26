@@ -8,11 +8,13 @@ namespace SIRECAS.Controllers
 {
     public class AcabadosPlafoneController : Controller
     {
-        private readonly SirecasContext _context;
+        private readonly Sirecas2Context _context;
+        private readonly ActividadService _actividadService;
 
-        public AcabadosPlafoneController(SirecasContext context)
+        public AcabadosPlafoneController(Sirecas2Context context, ActividadService actividadService)
         {
             _context = context;
+            _actividadService = actividadService;
         }
 
         [HttpGet]
@@ -57,10 +59,38 @@ namespace SIRECAS.Controllers
                 _context.AcabadosPlafones.Add(entidad);
                 await _context.SaveChangesAsync();
 
+                // Usar el servicio para registrar actividad
+                await _actividadService.RegistrarActividadAsync("registró los acabados de plafones", model.IdIdentificacion);
+
                 return RedirectToAction("MenuSeccionesRegistro", "Identificacion", new { idIdentificacion = model.IdIdentificacion });
             }
 
             return View(model);
         }
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Autorizado(1, 2)]
+        public async Task<IActionResult> Eliminar_AcabadosPlafone(int idIdentificacion)
+        {
+            var entity = await _context.AcabadosPlafones
+                .FirstOrDefaultAsync(a => a.IdIdentificacion == idIdentificacion);
+
+            if (entity == null)
+            {
+                return NotFound();
+            }
+
+            _context.AcabadosPlafones.Remove(entity);
+            await _context.SaveChangesAsync();
+
+            // Registrar actividad con el servicio
+            await _actividadService.RegistrarActividadAsync("eliminó los acabados de plafones", idIdentificacion);
+
+            return RedirectToAction("Resumen", "Identificacion", new { idIdentificacion });
+        }
+
     }
 }

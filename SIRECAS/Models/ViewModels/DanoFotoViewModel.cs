@@ -12,5 +12,6 @@ namespace SIRECAS.Models.ViewModels
         public string RutaArchivo { get; set; } = string.Empty;
 
         public string? Observacion { get; set; }
+
     }
 }

@@ -8,11 +8,13 @@ namespace SIRECAS.Controllers
 {
     public class CubiertaController : Controller
     {
-        private readonly SirecasContext _context;
+        private readonly Sirecas2Context _context;
+        private readonly ActividadService _actividadService;
 
-        public CubiertaController(SirecasContext context)
+        public CubiertaController(Sirecas2Context context, ActividadService actividadService)
         {
             _context = context;
+            _actividadService = actividadService;
         }
 
         [HttpGet]
@@ -61,10 +63,31 @@ namespace SIRECAS.Controllers
                 _context.Cubiertas.Add(entidad);
                 await _context.SaveChangesAsync();
 
+                await _actividadService.RegistrarActividadAsync("registró las cubiertas", model.IdIdentificacion);
+
                 return RedirectToAction("MenuSeccionesRegistro", "Identificacion", new { idIdentificacion = model.IdIdentificacion });
             }
 
             return View(model);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Autorizado(1, 2)]
+        public async Task<IActionResult> Eliminar_Cubierta(int idIdentificacion)
+        {
+            var entidad = await _context.Cubiertas.FirstOrDefaultAsync(c => c.IdIdentificacion == idIdentificacion);
+            if (entidad != null)
+            {
+                _context.Cubiertas.Remove(entidad);
+                await _context.SaveChangesAsync();
+
+                await _actividadService.RegistrarActividadAsync("eliminó las cubiertas", idIdentificacion);
+            }
+
+            return RedirectToAction("MenuSeccionesRegistro", "Identificacion", new { idIdentificacion });
+        }
+
+
     }
 }

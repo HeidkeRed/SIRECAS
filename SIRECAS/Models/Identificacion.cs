@@ -69,13 +69,15 @@ public partial class Identificacion
 
     public virtual Estructura? Estructura { get; set; }
 
-    public virtual Instalacione? Instalacione { get; set; }
+    public virtual ICollection<Foto> Fotos { get; set; } = new List<Foto>();
 
     public virtual ICollection<PlanimetriaExistente> PlanimetriaExistentes { get; set; } = new List<PlanimetriaExistente>();
 
     public virtual Puerta? Puerta { get; set; }
 
     public virtual ICollection<RegistroTrabajo> RegistroTrabajos { get; set; } = new List<RegistroTrabajo>();
+
+    public virtual ICollection<Instalacione> Instalacione { get; set; } = new List<Instalacione>();
 
     public virtual Ventana? Ventana { get; set; }
 }

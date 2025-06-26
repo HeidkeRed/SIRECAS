@@ -1,0 +1,56 @@
+﻿@model SIRECAS.Models.DanoObservable
+@{
+    ViewData["Title"] = "Editar Fotos del Daño";
+}
+
+<h2>Editar Fotos del Daño</h2>
+
+@foreach (var foto in Model.DanoFotos)
+{
+    <div class="card mb-3 shadow-sm">
+        <div class="row g-0">
+            <div class="col-md-4">
+                <img src="@foto.RutaArchivo" class="card-img-top" style="max-height: 200px; object-fit: cover;" alt="Foto del daño" />
+            </div>
+            <div class="col-md-8">
+                <div class="card-body">
+                    <form asp-action="EditarFoto" method="post" enctype="multipart/form-data">
+                        <input type="hidden" name="IdFoto" value="@foto.IdFoto" />
+
+                        <div class="mb-2">
+                            <label>Observación</label>
+                            <textarea name="Observacion" class="form-control">@foto.Observacion</textarea>
+                        </div>
+
+                        <div class="mb-2">
+                            <label>Reemplazar foto (opcional)</label>
+                            <input type="file" name="NuevaFoto" class="form-control" />
+                        </div>
+
+                        <button type="submit" class="btn btn-success">Guardar cambios</button>
+                    </form>
+
+                    <form asp-action="EliminarFoto" method="post" class="mt-2">
+                        <input type="hidden" name="idFoto" value="@foto.IdFoto" />
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('¿Eliminar esta foto?')">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<hr />
+<h4>Agregar nueva foto</h4>
+<form asp-action="AgregarFoto" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="IdDano" value="@Model.IdDano" />
+    <div class="mb-2">
+        <label>Selecciona imagen</label>
+        <input type="file" name="NuevaFoto" class="form-control" />
+    </div>
+    <div class="mb-2">
+        <label>Observación (opcional)</label>
+        <textarea name="Observacion" class="form-control"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Agregar Foto</button>
+</form>

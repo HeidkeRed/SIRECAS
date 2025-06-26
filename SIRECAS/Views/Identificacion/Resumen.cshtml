@@ -1,8 +1,14 @@
-﻿@model SIRECAS.Models.Identificacion
+﻿
+@model SIRECAS.Models.Identificacion
+@{
+    var rol = Context.Session.GetInt32("IdRol");
+}
 
+<h1>Identificación</h1>
 <h2 class="mb-4">📌 Identificación General</h2>
 
-<div class="card shadow-sm mb-4">
+<!-- SECCIÓN SOLO LECTURA -->
+<div id="vistaLectura" class="card shadow-sm mb-4">
     <div class="card-body">
         <p><strong>Nombre de la parroquia:</strong> @Model.NombreParroquia</p>
         <p><strong>Nombre del titular:</strong> @Model.NombreTitular</p>
@@ -17,12 +23,7 @@
         <p><strong>Ubicación en manzana:</strong> @(Model.UbicacionManzana ?? "No especificado")</p>
         <p><strong>Construcciones colindantes:</strong> @(Model.ConstruccionesColindantes ?? "No especificado")</p>
 
-        <p>
-            <strong>Dimensiones del terreno:</strong>
-            Frente: @(Model.Frente?.ToString("0.00") ?? "0.00") m,
-            Fondo: @(Model.Fondo?.ToString("0.00") ?? "0.00") m
-        </p>
-
+        <p><strong>Dimensiones del terreno:</strong> Frente: @(Model.Frente?.ToString("0.00") ?? "0.00") m, Fondo: @(Model.Fondo?.ToString("0.00") ?? "0.00") m</p>
         <p><strong>M² de terreno:</strong> @(Model.M2terreno?.ToString("0.00") ?? "0.00")</p>
         <p><strong>M² de construcción:</strong> @(Model.M2construccion?.ToString("0.00") ?? "0.00")</p>
 
@@ -33,48 +34,233 @@
             @if (Model.CoordenadaY.HasValue && Model.CoordenadaX.HasValue)
             {
                 <a class="ms-2 btn btn-sm btn-outline-primary"
-                   target="_blank"
-                   href="https://www.google.com/maps/search/?api=1&query=@Model.CoordenadaY,@Model.CoordenadaX">
+                target="_blank"
+                href="https://www.google.com/maps/search/?api=1&query=@Model.CoordenadaY,@Model.CoordenadaX">
                     Ver en Google Maps
                 </a>
             }
         </p>
-
     </div>
 </div>
+
+<!-- BOTONES -->
+@if (rol == 1 || rol == 2)
+{
+    <div id="botonesLectura" class="mb-4">
+        <button class="btn btn-warning me-2" onclick="activarEdicionId()">✏️ Activar edición</button>
+
+        <form asp-action="EliminarIdentificacion" asp-controller="Identificacion" method="post" class="d-inline">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="idIdentificacion" value="@Model.IdIdentificacion" />
+            <button type="submit" class="btn btn-danger" onclick="return confirm('¿Deseas eliminar esta identificación?')">🗑️ Eliminar</button>
+        </form>
+    </div>
+}
+<!-- FORMULARIO DE EDICIÓN -->
+<form id="formEdicion" asp-action="ActualizarIdentificacion" asp-controller="Identificacion" method="post" class="card shadow-sm mb-4 d-none">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="IdIdentificacion" value="@Model.IdIdentificacion" />
+
+    <div class="card-body">
+        <div class="mb-3">
+            <label class="form-label">Nombre de la parroquia</label>
+            <input class="form-control" name="NombreParroquia" value="@Model.NombreParroquia" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Nombre del titular</label>
+            <input class="form-control" name="NombreTitular" value="@Model.NombreTitular" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Correo electrónico</label>
+            <input class="form-control" name="CorreoElectronico" value="@Model.CorreoElectronico" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Teléfono</label>
+            <input class="form-control" name="Telefono" value="@Model.Telefono" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Año de construcción</label>
+            <input type="number" class="form-control" name="AnioConstruccion" value="@Model.AnioConstruccion" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Calle</label>
+            <input class="form-control" name="Calle" value="@Model.Calle" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Número</label>
+            <input class="form-control" name="NumeroEdificio" value="@Model.NumeroEdificio" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Colonia</label>
+            <input class="form-control" name="Colonia" value="@Model.Colonia" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Código Postal</label>
+            <input class="form-control" name="CodigoPostal" value="@Model.CodigoPostal" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Entre calles</label>
+            <input class="form-control" name="EntreCalles" value="@Model.EntreCalles" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Municipio</label>
+            <input class="form-control" name="Municipio" value="@Model.Municipio" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Ubicación en manzana</label>
+            <input class="form-control" name="UbicacionManzana" value="@Model.UbicacionManzana" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Construcciones colindantes</label>
+            <input class="form-control" name="ConstruccionesColindantes" value="@Model.ConstruccionesColindantes" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Frente (m)</label>
+            <input class="form-control" type="number" step="0.01" name="Frente" value="@Model.Frente" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Fondo (m)</label>
+            <input class="form-control" type="number" step="0.01" name="Fondo" value="@Model.Fondo" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">M² de terreno</label>
+            <input class="form-control" type="number" step="0.01" name="M2terreno" value="@Model.M2terreno" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">M² de construcción</label>
+            <input class="form-control" type="number" step="0.01" name="M2construccion" value="@Model.M2construccion" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Latitud</label>
+            <input class="form-control" type="number" step="0.0000001" name="CoordenadaY" value="@Model.CoordenadaY" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Longitud</label>
+            <input class="form-control" type="number" step="0.0000001" name="CoordenadaX" value="@Model.CoordenadaX" />
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success me-2">💾 Guardar</button>
+            <button type="button" class="btn btn-secondary" onclick="cancelarEdicionId()">❌ Cancelar</button>
+
+        </div>
+    </div>
+</form>
+
+<!-- SCRIPT -->
+<script>
+    function activarEdicionId() {
+    document.getElementById("vistaLectura").classList.add("d-none");
+    document.getElementById("botonesLectura").classList.add("d-none");
+    document.getElementById("formEdicion").classList.remove("d-none");
+    }
+
+    function cancelarEdicionId() {
+    document.getElementById("vistaLectura").classList.remove("d-none");
+    document.getElementById("botonesLectura").classList.remove("d-none");
+    document.getElementById("formEdicion").classList.add("d-none");
+    }
+</script>
+
+
+
 @if (Model.DescripcionDelEdificios != null && Model.DescripcionDelEdificios.Any())
 {
     var desc = Model.DescripcionDelEdificios.First();
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-            <h4 class="mb-0">🏛️ Descripción del Edificio</h4>
-        </div>
-        <div class="card-body">
-            <p><strong>Descripción general:</strong></p>
-            <p>@(desc.DescripcionGeneral ?? "No especificado")</p>
+    <!-- Formulario para actualizar -->
+    <form asp-action="ActualizarDescripcion" asp-controller="DescripcionDelEdificio" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="IdIdentificacion" value="@desc.IdIdentificacion" />
 
-            <p><strong>Descripción de la fachada:</strong></p>
-            <p>@(desc.DescripcionFachada ?? "No especificado")</p>
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">🏛️ Descripción del Edificio</h4>
 
-            @if (!string.IsNullOrWhiteSpace(desc.FotografiaFachada))
-            {
-                <p><strong>Fotografía de la fachada:</strong></p>
-                <img src="@desc.FotografiaFachada" alt="Fachada" class="img-fluid rounded shadow" style="max-width: 100%; max-height: 400px;" />
-            }
-            else
-            {
-                <p><strong>Fotografía de la fachada:</strong> No disponible</p>
-            }
+                @if (rol == 1 || rol == 2)
+                {
+                    <div>
+                        <button type="button" class="btn btn-warning btn-sm" id="btnEditarDescripcion">✏️ Editar</button>
+                    </div>
+                }
+            </div>
+
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label"><strong>Descripción general:</strong></label>
+                    <textarea name="DescripcionGeneral" class="form-control" rows="4" disabled>@desc.DescripcionGeneral</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><strong>Descripción de la fachada:</strong></label>
+                    <textarea name="DescripcionFachada" class="form-control" rows="4" disabled>@desc.DescripcionFachada</textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><strong>Fotografía de la fachada:</strong></label><br />
+                    @if (!string.IsNullOrWhiteSpace(desc.FotografiaFachada))
+                    {
+                        <img src="@desc.FotografiaFachada" alt="Fachada" class="img-fluid rounded shadow mb-2" style="max-width: 100%; max-height: 400px;" />
+                    }
+                    else
+                    {
+                        <p>No disponible</p>
+                    }
+
+                    <input type="file" name="Foto" class="form-control mt-2" accept="image/*" disabled />
+                </div>
+
+                <button type="submit" class="btn btn-success" id="btnGuardarDescripcion" style="display:none;">💾 Guardar cambios</button>
+                <button type="button" class="btn btn-secondary" id="btnCancelarDescripcion" style="display:none;">❌ Cancelar</button>
+
+            </div>
         </div>
-    </div>
+    </form>
+
+    <!-- Formulario de eliminación separado -->
+    @if (rol == 1 || rol == 2)
+    {
+        <form asp-action="EliminarDescripcion" asp-controller="DescripcionDelEdificio" method="post" onsubmit="return confirm('¿Deseas eliminar esta descripción?');" class="mb-4">
+            <input type="hidden" name="idIdentificacion" value="@desc.IdIdentificacion" />
+            <button type="submit" class="btn btn-danger">🗑️ Eliminar</button>
+        </form>
+    }
+
+    <script>
+        const btnEditar = document.getElementById("btnEditarDescripcion");
+        const btnGuardar = document.getElementById("btnGuardarDescripcion");
+        const btnCancelar = document.getElementById("btnCancelarDescripcion");
+
+        const form = btnEditar.closest("form");
+        const campos = form.querySelectorAll("textarea, input[type='file']");
+
+        // Guarda los valores originales al iniciar la vista
+        const valoresOriginales = Array.from(campos).map(el => el.value);
+
+        btnEditar?.addEventListener("click", function () {
+        campos.forEach(el => el.disabled = false);
+        btnGuardar.style.display = "inline-block";
+        btnCancelar.style.display = "inline-block";
+        btnEditar.style.display = "none";
+        });
+
+        btnCancelar?.addEventListener("click", function () {
+        campos.forEach((el, i) => {
+        el.disabled = true;
+        el.value = valoresOriginales[i]; // Restaurar valores
+        });
+        btnGuardar.style.display = "none";
+        btnCancelar.style.display = "none";
+        btnEditar.style.display = "inline-block";
+        });
+    </script>
 }
 
+
+
 @if (
-  Model.Cimiento != null || Model.Estructura != null || Model.Entrepiso != null ||
-  Model.Cubierta != null || Model.AcabadosPiso != null || Model.AcabadosMuro != null ||
-  Model.AcabadosPlafone != null || Model.Puerta != null || Model.Ventana != null || Model.Instalacione != null ||
-  Model.DatosHistoricos !=null || Model.ElementoArteSacros !=null || Model.RegistroTrabajos !=null || Model.PlanimetriaExistentes != null
+Model.Cimiento != null || Model.Estructura != null || Model.Entrepiso != null ||
+Model.Cubierta != null || Model.AcabadosPiso != null || Model.AcabadosMuro != null ||
+Model.AcabadosPlafone != null || Model.Puerta != null || Model.Ventana != null
 )
 {
     <div class="card shadow-sm mb-5">
@@ -82,6 +268,11 @@
             <h4 class="mb-0">🧱 Materiales y Sistemas Constructivos</h4>
         </div>
         <div class="card-body">
+            @if (rol == 1 || rol == 2)
+            {
+                <button id="btnEditar" type="button" class="btn btn-warning mb-3" onclick="activarModoEdicion()">Editar</button>
+                <button id="btnCancelar" type="button" class="btn btn-secondary mb-3" onclick="cancelarEdicionMa()" style="display: none;">Cancelar</button>
+            }            
             <div class="row row-cols-1 g-4">
 
                 @* Cimientos *@
@@ -89,9 +280,18 @@
                 {
                     var c = Model.Cimiento;
                     <div class="col">
-                        <div class="border-start border-4 border-primary ps-3 mb-2">
-                            <h5 class="fw-bold text-dark">Cimientos</h5>
+                        <div class="border-start border-4 border-primary ps-3 mb-2 d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold text-dark mb-0">Cimientos</h5>
+
+                            <form asp-controller="Cimiento" asp-action="EliminarCimiento" method="post" asp-route-idIdentificacion="@c.IdIdentificacion" class="ms-auto btn-eliminar" style="display:none;">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('¿Estás seguro de eliminar los cimientos?');">
+                                    Eliminar
+                                </button>
+                            </form>
                         </div>
+
                         <ul class="list-group list-group-flush">
                             @if (c.TierraCompactada == true)
                             {
@@ -118,18 +318,136 @@
                                 <li class="list-group-item"><strong>Otros:</strong> @c.OtrosCimientos</li>
                             }
                         </ul>
+
                         <p class="mt-2"><strong>Observaciones:</strong> @(c.Observaciones ?? "Ninguna")</p>
                     </div>
                 }
+
+                @if (Model.AcabadosPlafone != null)
+                {
+                    var apf = Model.AcabadosPlafone;
+                    <div class="col">
+                        <div class="border-start border-4 border-primary ps-3 mb-2">
+                            <h5 class="fw-bold text-dark">Acabados de Plafón</h5>
+                            <form asp-controller="Acabados" asp-action="Eliminar_AcabadosPlafone" method="post" asp-route-idIdentificacion="@apf.IdIdentificacion" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este registro?');">
+                                <button type="submit" class="btn btn-sm btn-danger btn-eliminar" style="display: none;">Eliminar</button>
+                            </form>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            @if (apf.AparenteSinAcabadoFinal == true)
+                            {
+                                <li class="list-group-item">Aparente sin Acabado Final</li>
+                            }
+                            @if (apf.BaseCemento == true)
+                            {
+                                <li class="list-group-item">Base Cemento</li>
+                            }
+                            @if (apf.BaseYeso == true)
+                            {
+                                <li class="list-group-item">Base Yeso</li>
+                            }
+                            @if (apf.Pintura == true)
+                            {
+                                <li class="list-group-item">Pintura</li>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(apf.OtrosAcabados))
+                            {
+                                <li class="list-group-item"><strong>Otros:</strong> @apf.OtrosAcabados</li>
+                            }
+                        </ul>
+                        <p class="mt-2"><strong>Observaciones:</strong> @(apf.Observaciones ?? "Ninguna")</p>
+                    </div>
+                }
+
+
+                @if (Model.AcabadosPiso != null)
+                {
+                    var ap = Model.AcabadosPiso;
+                    <div class="col">
+                        <div class="border-start border-4 border-primary ps-3 mb-2">
+                            <h5 class="fw-bold text-dark">Acabados de Piso</h5>
+                            <form asp-controller="Acabados" asp-action="Eliminar_AcabadosPiso" method="post" asp-route-idIdentificacion="@ap.IdIdentificacion" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este registro?');">
+                                <button type="submit" class="btn btn-sm btn-danger btn-eliminar" style="display: none;">Eliminar</button>
+                            </form>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            @if (ap.Tierra == true)
+                            {
+                                <li class="list-group-item">Tierra</li>
+                            }
+                            @if (ap.Mosaico == true)
+                            {
+                                <li class="list-group-item">Mosaico</li>
+                            }
+                            @if (ap.PisoCeramico == true)
+                            {
+                                <li class="list-group-item">Piso Cerámico</li>
+                            }
+                            @if (ap.ConcretoPulido == true)
+                            {
+                                <li class="list-group-item">Concreto Pulido</li>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(ap.OtrosAcabados))
+                            {
+                                <li class="list-group-item"><strong>Otros:</strong> @ap.OtrosAcabados</li>
+                            }
+                        </ul>
+                        <p class="mt-2"><strong>Observaciones:</strong> @(ap.Observaciones ?? "Ninguna")</p>
+                    </div>
+                }
+
+
+                @* Acabados de Muro *@
+                @if (Model.AcabadosMuro != null)
+                {
+                    var am = Model.AcabadosMuro;
+                    <div class="col">
+                        <div class="border-start border-4 border-primary ps-3 mb-2">
+                            <h5 class="fw-bold text-dark">Acabados de Muro</h5>
+                            <form asp-controller="Acabados" asp-action="Eliminar_AcabadosMuro" method="post" asp-route-idIdentificacion="@am.IdIdentificacion" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este registro?');">
+                                <button type="submit" class="btn btn-sm btn-danger btn-eliminar" style="display: none;">Eliminar</button>
+                            </form>
+                        </div>
+                        <ul class="list-group list-group-flush">
+                            @if (am.Aparente == true)
+                            {
+                                <li class="list-group-item">Aparente</li>
+                            }
+                            @if (am.BaseCemento == true)
+                            {
+                                <li class="list-group-item">Base Cemento</li>
+                            }
+                            @if (am.Yeso == true)
+                            {
+                                <li class="list-group-item">Yeso</li>
+                            }
+                            @if (am.Pintura == true)
+                            {
+                                <li class="list-group-item">Pintura</li>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(am.OtrosAcabados))
+                            {
+                                <li class="list-group-item"><strong>Otros:</strong> @am.OtrosAcabados</li>
+                            }
+                        </ul>
+                        <p class="mt-2"><strong>Observaciones:</strong> @(am.Observaciones ?? "Ninguna")</p>
+                    </div>
+                }
+
 
                 @* Estructura *@
                 @if (Model.Estructura != null)
                 {
                     var e = Model.Estructura;
                     <div class="col">
-                        <div class="border-start border-4 border-primary ps-3 mb-2">
-                            <h5 class="fw-bold text-dark">Estructura</h5>
+                        <div class="border-start border-4 border-primary ps-3 mb-2 d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold text-dark mb-0">Estructura</h5>
+
+                            <form asp-controller="Estructura" asp-action="Eliminar_Estructura" method="post" asp-route-idIdentificacion="@e.IdIdentificacion" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este registro?');">
+                                <button type="submit" class="btn btn-sm btn-danger btn-eliminar" style="display: none;">Eliminar</button>
+                            </form>
                         </div>
+
                         <ul class="list-group list-group-flush">
                             @if (e.MuroPiedra == true)
                             {
@@ -168,18 +486,25 @@
                                 <li class="list-group-item"><strong>Otra columna:</strong> @e.OtroTipoColumna</li>
                             }
                         </ul>
+
                         <p class="mt-2"><strong>Observaciones:</strong> @(e.Observaciones ?? "Ninguna")</p>
                     </div>
                 }
 
-                @* Entrepisos *@
+
+                @* Entrepiso *@
                 @if (Model.Entrepiso != null)
                 {
                     var ent = Model.Entrepiso;
                     <div class="col">
-                        <div class="border-start border-4 border-primary ps-3 mb-2">
-                            <h5 class="fw-bold text-dark">Entrepisos</h5>
+                        <div class="border-start border-4 border-primary ps-3 mb-2 d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold text-dark mb-0">Entrepisos</h5>
+
+                            <form asp-controller="Entrepiso" asp-action="Eliminar_Entrepiso" method="post" asp-route-idIdentificacion="@ent.IdIdentificacion" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este registro?');">
+                                <button type="submit" class="btn btn-sm btn-danger btn-eliminar" style="display: none;">Eliminar</button>
+                            </form>
                         </div>
+
                         <ul class="list-group list-group-flush">
                             @if (ent.LosaMaciza == true)
                             {
@@ -206,6 +531,7 @@
                     </div>
                 }
 
+
                 @* Cubiertas *@
                 @if (Model.Cubierta != null)
                 {
@@ -213,6 +539,9 @@
                     <div class="col">
                         <div class="border-start border-4 border-primary ps-3 mb-2">
                             <h5 class="fw-bold text-dark">Cubiertas</h5>
+                            <form asp-controller="Cubierta" asp-action="Eliminar_Cubierta" method="post" asp-route-idIdentificacion="@cub.IdIdentificacion" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este registro?');">
+                                <button type="submit" class="btn btn-sm btn-danger btn-eliminar" style="display: none;">Eliminar</button>
+                            </form>
                         </div>
                         <ul class="list-group list-group-flush">
                             @if (cub.Lamina == true)
@@ -263,6 +592,9 @@
                     <div class="col">
                         <div class="border-start border-4 border-primary ps-3 mb-2">
                             <h5 class="fw-bold text-dark">Puertas</h5>
+                            <form asp-controller="Puerta" asp-action="Eliminar_Puertas" method="post" asp-route-idIdentificacion="@p.IdIdentificacion" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este registro?');">
+                                <button type="submit" class="btn btn-sm btn-danger btn-eliminar" style="display: none;">Eliminar</button>
+                            </form>
                         </div>
                         <ul class="list-group list-group-flush">
                             @if (p.Madera == true)
@@ -293,6 +625,9 @@
                     <div class="col">
                         <div class="border-start border-4 border-primary ps-3 mb-2">
                             <h5 class="fw-bold text-dark">Ventanas</h5>
+                            <form asp-controller="Ventana" asp-action="Eliminar_Ventanas" method="post" asp-route-idIdentificacion="@v.IdIdentificacion" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este registro?');">
+                                <button type="submit" class="btn btn-sm btn-danger btn-eliminar" style="display: none;">Eliminar</button>
+                            </form>
                         </div>
                         <ul class="list-group list-group-flush">
                             @if (v.Madera == true)
@@ -318,271 +653,595 @@
             </div>
         </div>
     </div>
+}
+<script>
+    function activarModoEdicion() {
+    const botones = document.querySelectorAll('.btn-eliminar');
+    botones.forEach(btn => {
+    btn.style.display = 'block';
+    });
 
-                @* Instalaciones *@
-                @if (Model.Instalacione != null)
-                {
-                    var ins = Model.Instalacione;
-                    <div class="card shadow-sm mb-5">
-                        <div class="card-header bg-primary text-white">
-                            <h4 class="mb-0">🔌 Instalaciones</h4>
-                        </div>
-                        <div class="card-body">
-                            <div class="row row-cols-1 g-4">
-                                <div class="col">
-                                    <div class="border-start border-4 border-primary ps-3 mb-2">
-                                        <h5 class="fw-bold text-dark">4.1 Instalación Eléctrica</h5>
-                                    </div>
-                                    <ul class="list-group list-group-flush">
-                                        @if (ins.ElectricaVisible == true)
-                                        {
-                                            <li class="list-group-item">Visible</li>
-                                        }
-                                        @if (ins.ElectricaOculta == true)
-                                        {
-                                            <li class="list-group-item">Oculta</li>
-                                        }
-                                    </ul>
-                                    <p><strong>Observaciones:</strong> @(ins.ObservacionesElectrica ?? "Ninguna")</p>
-                                </div>
+    document.getElementById('btnEditar').style.display = 'none';
+    document.getElementById('btnCancelar').style.display = 'inline-block';
+    }
 
-                                <div class="col">
-                                    <div class="border-start border-4 border-primary ps-3 mb-2">
-                                        <h5 class="fw-bold text-dark">4.2 Instalación Sanitaria</h5>
-                                    </div>
-                                    <ul class="list-group list-group-flush">
-                                        @if (ins.SanitariaVisible == true)
-                                        {
-                                            <li class="list-group-item">Visible</li>
-                                        }
-                                        @if (ins.SanitariaOculta == true)
-                                        {
-                                            <li class="list-group-item">Oculta</li>
-                                        }
-                                    </ul>
-                                    <p><strong>Observaciones:</strong> @(ins.ObservacionesSanitaria ?? "Ninguna")</p>
-                                </div>
+    function cancelarEdicionMa() {
+    const botones = document.querySelectorAll('.btn-eliminar');
+    botones.forEach(btn => {
+    btn.style.display = 'none';
+    });
 
-                                <div class="col">
-                                    <div class="border-start border-4 border-primary ps-3 mb-2">
-                                        <h5 class="fw-bold text-dark">4.3 Instalación Hidráulica</h5>
-                                    </div>
-                                    <ul class="list-group list-group-flush">
-                                        @if (ins.HidraulicaVisible == true)
-                                        {
-                                            <li class="list-group-item">Visible</li>
-                                        }
-                                        @if (ins.HidraulicaOculta == true)
-                                        {
-                                            <li class="list-group-item">Oculta</li>
-                                        }
-                                    </ul>
-                                    <p><strong>Observaciones:</strong> @(ins.ObservacionesHidraulica ?? "Ninguna")</p>
-                                </div>
+    document.getElementById('btnEditar').style.display = 'inline-block';
+    document.getElementById('btnCancelar').style.display = 'none';
+    }
+</script>
 
-                                <div class="col">
-                                    <div class="border-start border-4 border-primary ps-3 mb-2">
-                                        <h5 class="fw-bold text-dark">4.4 Instalación de Gas</h5>
-                                    </div>
-                                    <ul class="list-group list-group-flush">
-                                        @if (ins.GasVisible == true)
-                                        {
-                                            <li class="list-group-item">Visible</li>
-                                        }
-                                        @if (ins.GasOculta == true)
-                                        {
-                                            <li class="list-group-item">Oculta</li>
-                                        }
-                                    </ul>
-                                    <p><strong>Observaciones:</strong> @(ins.ObservacionesGas ?? "Ninguna")</p>
-                                </div>
 
-                                <div class="col">
-                                    <div class="border-start border-4 border-primary ps-3 mb-2">
-                                        <h5 class="fw-bold text-dark">4.5 Instalación Telefónica</h5>
-                                    </div>
-                                    <ul class="list-group list-group-flush">
-                                        @if (ins.TelefoniaVisible == true)
-                                        {
-                                            <li class="list-group-item">Visible</li>
-                                        }
-                                        @if (ins.TelefoniaOculta == true)
-                                        {
-                                            <li class="list-group-item">Oculta</li>
-                                        }
-                                    </ul>
-                                    <p><strong>Observaciones:</strong> @(ins.ObservacionesTelefonia ?? "Ninguna")</p>
-                                </div>
+@if (Model.Instalacione != null && Model.Instalacione.Any())
+{
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h4 class="mb-0">⚡ Instalaciones Registradas</h4>
+        </div>
+        <div class="card-body">
+            @foreach (var instalacion in Model.Instalacione.OrderBy(i => i.Tipo))
+            {
+                <div class="mb-3 border-bottom pb-2">
+                    <h5 class="text-primary">@instalacion.Tipo</h5>
+                    <p><strong>Visible:</strong> @(instalacion.Visible ? "Sí" : "No")</p>
+                    <p><strong>Oculta:</strong> @(instalacion.Oculta ? "Sí" : "No")</p>
+                    @if (!string.IsNullOrWhiteSpace(instalacion.Observaciones))
+                    {
+                        <p><strong>Observaciones:</strong> @instalacion.Observaciones</p>
+                    }
 
-                                <div class="col">
-                                    <div class="border-start border-4 border-primary ps-3 mb-2">
-                                        <h5 class="fw-bold text-dark">4.6 Otras Instalaciones</h5>
-                                    </div>
-                                    <ul class="list-group list-group-flush">
-                                        @if (ins.OtroVisible == true)
-                                        {
-                                            <li class="list-group-item">Visible</li>
-                                        }
-                                        @if (ins.OtroOculta == true)
-                                        {
-                                            <li class="list-group-item">Oculta</li>
-                                        }
-                                    </ul>
-                                    <p><strong>Observaciones:</strong> @(ins.ObservacionesOtro ?? "Ninguna")</p>
-                                </div>
+                    @if (rol == 1 || rol == 2)
+                    {
+                        <button class="btn btn-warning btn-sm" onclick="activarModoEdicionInstalacion(@instalacion.Id)">Editar</button>
+                        <form method="post" asp-action="EliminarInstalacion" asp-controller="Instalacione" style="display:inline-block;" onsubmit="return confirm('¿Estás seguro de que deseas eliminar esta instalación?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="Id" value="@instalacion.Id" />
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
+
+                    }
+
+                    <!-- Contenedor para el formulario de edición -->
+                    <div id="form-editar-instalacion-@instalacion.Id" class="editar-formulario" style="display: none;">
+                        <form id="formulario-editar-inst-@instalacion.Id" method="post" action="@Url.Action("ActualizarInstalacion", "Instalacione")">
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="IdIdentificacion" value="@instalacion.IdIdentificacion" />
+                            <input type="hidden" name="Id" value="@instalacion.Id" />
+
+                            <div class="mb-2">
+                                <label>Observaciones:</label>
+                                <textarea name="Observaciones" class="form-control">@instalacion.Observaciones</textarea>
                             </div>
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" name="Visible" id="visible-inst-@instalacion.Id" value="true" @(instalacion.Visible ? "checked" : "") />
+                                <label class="form-check-label" for="visible-inst-@instalacion.Id">Visible</label>
+                            </div>
+
+                            <div class="form-check mb-2">
+                                <input type="checkbox" class="form-check-input" name="Oculta" id="oculta-inst-@instalacion.Id" value="true" @(instalacion.Oculta ? "checked" : "") />
+                                <label class="form-check-label" for="oculta-inst-@instalacion.Id">Oculta</label>
+                            </div>
+
+
+                            <button type="submit" class="btn btn-success">Guardar cambios</button>
+                            <button type="button" class="btn btn-danger" onclick="cancelarEdicionInstalacion(@instalacion.Id)">Cancelar</button>
+                        </form>
+                    </div>
+
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<script>
+    function activarModoEdicionInstalacion(instalacionId) {
+    const formulario = document.getElementById(`form-editar-instalacion-${instalacionId}`);
+    formulario.style.display = 'block';
+    }
+
+    function cancelarEdicionInstalacion(instalacionId) {
+    const formulario = document.getElementById(`form-editar-instalacion-${instalacionId}`);
+    formulario.style.display = 'none';
+    }
+</script>
+
+
+
+
+@if (Model.DatosHistoricos != null && Model.DatosHistoricos.Any())
+{
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h4 class="mb-0">📚 Datos Históricos</h4>
+        </div>
+        <div class="card-body">
+            @{
+                var datosOrdenados = Model.DatosHistoricos.OrderByDescending(d => d.FechaEvento);
+            }
+
+            @foreach (var dato in datosOrdenados)
+            {
+                <div class="mb-3 border-bottom pb-2">
+                    <h5 class="text-primary">@dato.Titulo</h5>
+                    <p><strong>Fecha:</strong> @(dato.FechaEvento?.ToString("dd/MM/yyyy") ?? "Sin especificar")</p>
+                    <p>@dato.Descripcion</p>
+
+                    @if (rol == 1 || rol == 2)
+                    {
+                        <!-- Botones de editar y eliminar -->
+                        <button class="btn btn-warning btn-sm" onclick="activarEdicionDato(@dato.IdDatoHistorico)">Editar</button>
+                        <form method="post" asp-action="Eliminar_DatosHistorico" asp-controller="DatosHistorico" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="idDatoHistorico" value="@dato.IdDatoHistorico" />
+                            <input type="hidden" name="idIdentificacion" value="@dato.IdIdentificacion" />
+                            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                        </form>
+                    }
+
+
+                    <!-- Formulario de edición -->
+                    <div id="form-editar-dato-@dato.IdDatoHistorico" style="display:none;" class="mt-3">
+                        <form method="post" asp-action="Actualizar_DatosHistorico" asp-controller="DatosHistorico">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="IdDatoHistorico" value="@dato.IdDatoHistorico" />
+                            <input type="hidden" name="IdIdentificacion" value="@dato.IdIdentificacion" />
+
+                            <div class="mb-2">
+                                <label for="Titulo">Título:</label>
+                                <input class="form-control" type="text" name="Titulo" value="@dato.Titulo" />
+                            </div>
+
+                            <div class="mb-2">
+                                <label for="Descripcion">Descripción:</label>
+                                <textarea class="form-control" name="Descripcion">@dato.Descripcion</textarea>
+                            </div>
+
+                            <div class="mb-2">
+                                <label for="FechaEvento">Fecha del Evento:</label>
+                                <input type="date" name="FechaEvento" class="form-control"
+                                value="@(dato.FechaEvento.HasValue ? dato.FechaEvento.Value.ToDateTime(TimeOnly.MinValue).ToString("yyyy-MM-dd") : "")" />
+                            </div>
+
+                            <button type="submit" class="btn btn-success btn-sm">Guardar</button>
+                            <button type="button" class="btn btn-secondary btn-sm" onclick="cancelarEdicionDato(@dato.IdDatoHistorico)">Cancelar</button>
+                        </form>
+                    </div>
+
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<script>
+    function activarEdicionDato(id) {
+    document.getElementById("form-editar-dato-" + id).style.display = "block";
+    }
+
+    function cancelarEdicionDato(id) {
+    document.getElementById("form-editar-dato-" + id).style.display = "none";
+    }
+</script>
+
+
+
+@if (Model.ElementoArteSacros != null && Model.ElementoArteSacros.Any())
+{
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-warning">
+            <h4 class="mb-0">🖼️ Elementos de Arte Sacro</h4>
+        </div>
+        <div class="card-body">
+            @foreach (var elemento in Model.ElementoArteSacros)
+            {
+                <div class="mb-4 border rounded p-3" id="elemento-@elemento.IdElemento">
+                    <div id="modo-lectura-@elemento.IdElemento">
+                        <h5 class="text-dark">📌 Sección: @elemento.Seccion</h5>
+                        @if (!string.IsNullOrEmpty(elemento.Subtipo))
+                        {
+                            <p><strong>Subtipo:</strong> @elemento.Subtipo</p>
+                        }
+                        @if (!string.IsNullOrEmpty(elemento.Nombre))
+                        {
+                            <p><strong>Nombre:</strong> @elemento.Nombre</p>
+                        }
+                        @if (!string.IsNullOrEmpty(elemento.Descripcion))
+                        {
+                            <p><strong>Descripción:</strong> @elemento.Descripcion</p>
+                        }
+                        <p><strong>Fecha de registro:</strong> @(elemento.FechaRegistro?.ToString("yyyy-MM-dd") ?? "No especificada")</p>
+                        @if (rol == 1 || rol == 2)
+                        {
+                            <button class="btn btn-sm btn-outline-primary me-2" onclick="activarEdicionIns(@elemento.IdElemento)">Editar</button>
+                            <a asp-action="EditarFotosDelElemento" asp-controller="ArteSacro" asp-route-idElemento="@elemento.IdElemento" class="btn btn-sm btn-outline-secondary">
+                                Editar Fotos
+                            </a>
+                        }
+                        @if (elemento.ArteSacroFotos == null || !elemento.ArteSacroFotos.Any())
+                        {
+                            @if (rol == 1 || rol == 2)
+                            {
+                                <form method="post" asp-action="EliminarElemento" asp-controller="ArteSacro" asp-route-idElemento="@elemento.IdElemento" class="d-inline" onsubmit="return confirm('¿Estás seguro de que deseas eliminar este elemento?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                                </form>
+                            }
+                        }
+                    </div>
+
+                    <div id="modo-edicion-@elemento.IdElemento" style="display: none;">
+                        <form method="post" asp-action="EditarElemento" asp-controller="ArteSacro">
+                            <input type="hidden" name="IdElemento" value="@elemento.IdElemento" />
+                            <input type="hidden" name="IdIdentificacion" value="@elemento.IdIdentificacion" />
+
+                            <div class="mb-3">
+                                <label class="form-label">Tipo</label>
+                                @{
+                                    var secciones = new[] {
+                        new { Valor = "BienesRetablo", Texto = "Bienes Retablo" },
+                        new { Valor = "Pintura", Texto = "Pintura" },
+                        new { Valor = "Escultura", Texto = "Escultura" },
+                        new { Valor = "Otros elementos", Texto = "Otros elementos" }
+                        };
+                                }
+
+                                <select name="Seccion" class="form-select" id="seccion-select-@elemento.IdElemento" onchange="actualizarSubtipos(@elemento.IdElemento)">
+                                    <option value="">Seleccione una sección</option>
+                                    @foreach (var s in secciones)
+                                    {
+                                        <option value="@s.Valor" selected="@(elemento.Seccion == s.Valor ? "selected" : null)">@s.Texto</option>
+                                    }
+                                </select>
+
+                            </div>
+
+                            <div class="mb-3">
+                                <select name="Subtipo" class="form-select" id="subtipo-select-@elemento.IdElemento">
+                                    <option value="">Seleccione un subtipo</option>
+                                    @if (!string.IsNullOrEmpty(elemento.Subtipo))
+                                    {
+                                        <option selected="selected" value="@elemento.Subtipo">@elemento.Subtipo</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nombre</label>
+                                <input type="text" name="Nombre" class="form-control" value="@elemento.Nombre" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Descripción</label>
+                                <textarea name="Descripcion" class="form-control" rows="3">@elemento.Descripcion</textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label>Fecha de registro:</label>
+                                <input type="date" name="FechaRegistro" class="form-control" value="@(elemento.FechaRegistro?.ToString("yyyy-MM-dd"))" />
+                            </div>
+
+                            <button type="submit" class="btn btn-sm btn-success me-2">Guardar</button>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="cancelarEdicion(@elemento.IdElemento)">Cancelar</button>
+                        </form>
+                    </div>
+
+                    @if (elemento.ArteSacroFotos != null && elemento.ArteSacroFotos.Any())
+                    {
+                        <div class="row g-3 mt-3">
+                            @foreach (var foto in elemento.ArteSacroFotos)
+                            {
+                                <div class="col-md-4">
+                                    <div class="card shadow-sm">
+                                        <img src="@foto.RutaArchivo"
+                                             class="card-img-top"
+                                             style="max-height: 200px; object-fit: cover; cursor: pointer;"
+                                             alt="Foto de arte sacro"
+                                             onclick="mostrarModal('@foto.RutaArchivo', '@foto.Descripcion')" />
+                                        @if (!string.IsNullOrEmpty(foto.Descripcion))
+                                        {
+                                            <div class="card-body">
+                                                <p class="card-text">@foto.Descripcion</p>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
                         </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No hay fotografías registradas para este elemento.</p>
+                    }
+                    <hr />
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<script>
+    function generarCamposDescripcion() {
+    const input = document.getElementById("FotosSubidas");
+    const contenedor = document.getElementById("contenedor-descripciones");
+    contenedor.innerHTML = ""; // Limpiar anteriores
+
+    for (let i = 0; i < input.files.length; i++) {
+    const file = input.files[i];
+
+    const campo = document.createElement("div");
+    campo.className = "mb-2";
+
+    campo.innerHTML = `
+    <label class="form-label">Descripción para: <strong>${file.name}</strong></label>
+    <input type="text" name="Descripciones" class="form-control" placeholder="Opcional" />
+    `;
+
+    contenedor.appendChild(campo);
+    }
+    }
+
+    const subtipoOptions = {
+    "BienesRetablo": ["Mural", "Plafón", "Cuadros", "Otros"],
+    "Pintura": ["Mural", "Plafón", "Cuadros", "Otros"],
+    "Escultura": ["Cuerpo completo", "Busto", "Otros"],
+    "Otros elementos": ["Elementos metálicos", "Vidrio", "Cerámica", "Textiles", "Otros"]
+    };
+
+    function actualizarSubtipos(idElemento) {
+    const seccionSelect = document.getElementById("seccion-select-" + idElemento);
+    const subtipoSelect = document.getElementById("subtipo-select-" + idElemento);
+
+    const selected = seccionSelect.value;
+    subtipoSelect.innerHTML = "<option value=''>Seleccione un subtipo</option>";
+
+    if (subtipoOptions[selected]) {
+    subtipoOptions[selected].forEach(sub => {
+    const opt = document.createElement("option");
+    opt.value = sub;
+    opt.textContent = sub;
+    subtipoSelect.appendChild(opt);
+    });
+    }
+    }
+    function activarEdicionIns(id) {
+    document.getElementById("modo-lectura-" + id).style.display = "none";
+    document.getElementById("modo-edicion-" + id).style.display = "block";
+    }
+
+    function cancelarEdicion(id) {
+    document.getElementById("modo-edicion-" + id).style.display = "none";
+    document.getElementById("modo-lectura-" + id).style.display = "block";
+    }
+</script>
+
+@if (Model.DanoObservables != null && Model.DanoObservables.Any())
+{
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-warning">
+            <h4 class="mb-0">🛠️ Daños Observables</h4>
+        </div>
+        <div class="card-body">
+            @foreach (var dano in Model.DanoObservables)
+            {
+                <div class="mb-4 border rounded p-3" id="dano-@dano.IdDano">
+                    <div id="modo-lectura-@dano.IdDano">
+                        <h5 class="text-dark">🔧 Tipo: @dano.Tipo</h5>
+                        <p><strong>Zona:</strong> @dano.Zona</p>
+                        <p><strong>Estado:</strong> @dano.Estado</p>
+                        @if (rol == 1 || rol == 2)
+                        {
+                            <button class="btn btn-sm btn-outline-primary me-2" onclick="activarEdicionDano(@dano.IdDano)">Editar</button>
+
+                            <a asp-action="EditarFotosDelDano" asp-controller="DanoObservable" asp-route-idDano="@dano.IdDano" class="btn btn-sm btn-outline-secondary">
+                                Editar Fotos
+                            </a>
+
+                            <form method="post" asp-action="EliminarDano" asp-controller="DanoObservable" asp-route-idDano="@dano.IdDano" class="d-inline" onsubmit="return confirm('¿Seguro que quieres eliminar este daño observable?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                            </form>
+                        }
+                    </div>
+
+                    <div id="modo-edicion-@dano.IdDano" style="display: none;">
+                        <form method="post" asp-action="ActualizarDano" asp-controller="DanoObservable" asp-route-idDano="@dano.IdDano">
+                            <input type="hidden" name="IdDano" value="@dano.IdDano" />
+                            <input type="hidden" name="model.IdIdentificacion" value="@Model.IdIdentificacion" />
+
+
+                            <div class="mb-2">
+                                <label>Tipo:</label>
+                                <select name="Tipo" class="form-select">
+                                    <option value="">Seleccione...</option>
+                                    <option value="Grieta">Grieta</option>
+                                    <option value="Hundimientos">Hundimientos</option>
+                                    <option value="Elementos Inclinados">Elementos Inclinados</option>
+                                    <option value="Acero Expuesto">Acero Expuesto</option>
+                                    <option value="Desprendimientos">Desprendimientos</option>
+                                    <option value="Pérdida de elementos">Pérdida de elementos</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-2">
+                                <label>Zona:</label>
+                                <select name="Zona" class="form-select">
+                                    <option value="">Seleccione...</option>
+                                    <option value="Muro">Muro</option>
+                                    <option value="Columnas">Columnas</option>
+                                    <option value="Losa">Losa</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label>Estado:</label>
+                                <select name="Estado" class="form-select">
+                                    <option value="">Seleccione...</option>
+                                    <option value="Grave">Grave</option>
+                                    <option value="Regular">Regular</option>
+                                    <option value="Ligero">Ligero</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="btn btn-sm btn-success me-2">Guardar</button>
+                            <button type="button" class="btn btn-sm btn-secondary" onclick="cancelarEdicionDano(@dano.IdDano)">Cancelar</button>
+                        </form>
                     </div>
 
 
-
-                    @if (Model.DatosHistoricos != null && Model.DatosHistoricos.Any())
+                    @if (dano.DanoFotos != null && dano.DanoFotos.Any())
                     {
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-header bg-secondary text-white">
-                                <h4 class="mb-0">📚 Datos Históricos</h4>
-                            </div>
-                            <div class="card-body">
-                                @foreach (var dato in Model.DatosHistoricos.OrderByDescending(d => d.FechaEvento))
-                                {
-                                    <div class="mb-3 border-bottom pb-2">
-                                        <h5 class="text-primary">@dato.Titulo</h5>
-                                        <p><strong>Fecha:</strong> @(dato.FechaEvento?.ToString("dd/MM/yyyy") ?? "Sin especificar")</p>
-                                        <p>@dato.Descripcion</p>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
-
-                    @if (Model.ElementoArteSacros != null && Model.ElementoArteSacros.Any())
-                    {
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-header bg-warning">
-                                <h4 class="mb-0">🖼️ Elementos de Arte Sacro</h4>
-                            </div>
-                            <div class="card-body">
-                                @foreach (var elemento in Model.ElementoArteSacros)
-                                {
-                                    <div class="mb-4">
-                                        <h5 class="text-dark">📌 Sección: @elemento.Seccion</h5>
-                                        @if (!string.IsNullOrEmpty(elemento.Subtipo))
+                        <div class="row g-3 mt-3">
+                            @foreach (var foto in dano.DanoFotos)
+                            {
+                                <div class="col-md-4">
+                                    <div class="card shadow-sm">
+                                        <img src="@foto.RutaArchivo"
+                                             class="card-img-top"
+                                             style="max-height: 200px; object-fit: cover; cursor: pointer;"
+                                             alt="Foto del daño"
+                                             onclick="mostrarModal('@foto.RutaArchivo', '@foto.Observacion')" />
+                                        @if (!string.IsNullOrEmpty(foto.Observacion))
                                         {
-                                            <p><strong>Subtipo:</strong> @elemento.Subtipo</p>
-                                        }
-                                        @if (!string.IsNullOrEmpty(elemento.Nombre))
-                                        {
-                                            <p><strong>Nombre:</strong> @elemento.Nombre</p>
-                                        }
-                                        @if (!string.IsNullOrEmpty(elemento.Descripcion))
-                                        {
-                                            <p><strong>Descripción:</strong> @elemento.Descripcion</p>
-                                        }
-                                        <p><strong>Fecha de registro:</strong> @(elemento.FechaRegistro?.ToString("dd/MM/yyyy") ?? "No especificada")</p>
-
-                                        @if (elemento.ArteSacroFotos != null && elemento.ArteSacroFotos.Any())
-                                        {
-                                            <div class="row g-3">
-                                                @foreach (var foto in elemento.ArteSacroFotos)
-                                                {
-                                                    <div class="col-md-4">
-                                                        <div class="card shadow-sm">
-                                                            <img src="@foto.RutaArchivo" class="card-img-top" style="max-height: 200px; object-fit: cover;" alt="Foto de arte sacro" />
-                                                            @if (!string.IsNullOrEmpty(foto.Descripcion))
-                                                            {
-                                                                <div class="card-body">
-                                                                    <p class="card-text">@foto.Descripcion</p>
-                                                                </div>
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                }
+                                            <div class="card-body">
+                                                <p class="card-text">@foto.Observacion</p>
                                             </div>
                                         }
-                                        else
-                                        {
-                                            <p class="text-muted">No hay fotografías registradas para este elemento.</p>
-                                        }
-                                        <hr />
                                     </div>
-                                }
-                            </div>
+                                </div>
+                            }
                         </div>
-                    }
 
-                    @if (Model.DanoObservables != null && Model.DanoObservables.Any())
+                    }
+                    else
                     {
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-header bg-danger text-white">
-                                <h4 class="mb-0">⚠️ Daños Observables</h4>
-                            </div>
-                            <div class="card-body">
-                                @foreach (var dano in Model.DanoObservables)
-                                {
-                                    <div class="mb-4">
-                                        <h5 class="text-dark">🔧 Tipo: @dano.Tipo</h5>
-                                        <p><strong>Zona:</strong> @dano.Zona</p>
-                                        <p><strong>Estado:</strong> @dano.Estado</p>
+                        <p class="text-muted">No hay fotografías registradas para este daño observable.</p>
+                    }
+                    <hr />
+                </div>
+            }
+        </div>
+    </div>
+}
 
-                                        @if (dano.DanoFotos != null && dano.DanoFotos.Any())
-                                        {
-                                            <div class="row g-3">
-                                                @foreach (var foto in dano.DanoFotos)
-                                                {
-                                                    <div class="col-md-4">
-                                                        <div class="card shadow-sm">
-                                                            <img src="@foto.RutaArchivo" class="card-img-top" style="max-height: 200px; object-fit: cover;" alt="Foto del daño" />
-                                                            @if (!string.IsNullOrEmpty(foto.Observacion))
-                                                            {
-                                                                <div class="card-body">
-                                                                    <p class="card-text">@foto.Observacion</p>
-                                                                </div>
-                                                            }
-                                                        </div>
-                                                    </div>
-                                                }
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <p class="text-muted">No hay fotografías registradas para este daño.</p>
-                                        }
-                                        <hr />
-                                    </div>
-                                }
+<script>
+    function activarEdicionDano(id) {
+    document.getElementById("modo-lectura-" + id).style.display = "none";
+    document.getElementById("modo-edicion-" + id).style.display = "block";
+    }
+
+    function cancelarEdicionDano(id) {
+    document.getElementById("modo-edicion-" + id).style.display = "none";
+    document.getElementById("modo-lectura-" + id).style.display = "block";
+    }
+</script>
+
+@if (Model.RegistroTrabajos != null && Model.RegistroTrabajos.Any())
+{
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white">
+            <h4 class="mb-0">📝 Trabajos Realizados</h4>
+        </div>
+        <div class="card-body">
+            @{
+                var trabajosOrdenados = ((IEnumerable<RegistroTrabajo>)Model.RegistroTrabajos)
+                .OrderByDescending(t => t.FechaTrabajo);
+            }
+
+            @foreach (var trabajo in trabajosOrdenados)
+            {
+                var trabajoId = trabajo.IdTrabajo;
+
+                <div class="mb-3 border-bottom pb-2">
+                    <!-- Vista normal -->
+                    <div id="vista-@trabajoId">
+                        <p><strong>Tipo de trabajo:</strong> @(trabajo.TipoRegistro ?? "No especificado")</p>
+                        @if (!string.IsNullOrWhiteSpace(trabajo.Descripcion))
+                        {
+                            <p><strong>Descripción:</strong> @trabajo.Descripcion</p>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(trabajo.EmpresaResponsable))
+                        {
+                            <p><strong>Empresa responsable:</strong> @trabajo.EmpresaResponsable</p>
+                        }
+                        <p><strong>Fecha:</strong> @(trabajo.FechaTrabajo?.ToString("dd/MM/yyyy") ?? "Sin especificar")</p>
+                        @if (!string.IsNullOrWhiteSpace(trabajo.Observaciones))
+                        {
+                            <p><strong>Observaciones:</strong> @trabajo.Observaciones</p>
+                        }
+                        @if (rol == 1 || rol == 2)
+                        {
+                            <button class="btn btn-sm btn-primary mt-2" onclick="mostrarFormularioTra(@trabajoId)">✏️ Editar</button>
+                        }
+                    </div>
+
+                    <!-- Formulario de edición -->
+                    <div id="formulario-@trabajoId" style="display: none;">
+                        <form asp-action="ActualizarTrabajo" asp-controller="Trabajo" method="post" class="trabajo-form">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="IdTrabajo" value="@trabajoId" />
+
+                            <div class="form-group">
+                                <label><strong>Tipo de trabajo:</strong></label>
+                                <input type="text" name="TipoRegistro" value="@trabajo.TipoRegistro" class="form-control" />
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Descripción:</strong></label>
+                                <textarea name="Descripcion" class="form-control">@trabajo.Descripcion</textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Empresa responsable:</strong></label>
+                                <input type="text" name="EmpresaResponsable" value="@trabajo.EmpresaResponsable" class="form-control" />
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Fecha:</strong></label>
+                                <input type="date" name="FechaTrabajo" value="@trabajo.FechaTrabajo?.ToDateTime(TimeOnly.MinValue).ToString("yyyy-MM-dd")" class="form-control" />
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Observaciones:</strong></label>
+                                <textarea name="Observaciones" class="form-control">@trabajo.Observaciones</textarea>
+                            </div>
+
+                            <div class="mt-2 d-flex gap-2">
+                                <button type="submit" class="btn btn-success btn-sm">💾 Guardar</button>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="cancelarEdicionTra(@trabajoId)">❌ Cancelar</button>
+                            </div>
+                        </form>
+
+                        <form asp-action="EliminarTrabajo" asp-controller="Trabajo" method="post" onsubmit="return confirm('¿Estás seguro que deseas eliminar este trabajo?');" class="mt-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="IdTrabajo" value="@trabajoId" />
+                            <button type="submit" class="btn btn-danger btn-sm">🗑️ Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            }
+
+
                             </div>
                         </div>
                     }
-                    @if (Model.RegistroTrabajos != null && Model.RegistroTrabajos.Any())
-                    {
-                        <div class="card shadow-sm mb-4">
-                            <div class="card-header bg-dark text-white">
-                                <h4 class="mb-0">📝 Trabajos Realizados</h4>
-                            </div>
-                            <div class="card-body">
-                                @foreach (var trabajo in Model.RegistroTrabajos.OrderByDescending(t => t.FechaTrabajo))
-                                {
-                                    <div class="mb-3 border-bottom pb-2">
-                                        <p><strong>Tipo de trabajo:</strong> @(trabajo.TipoRegistro ?? "No especificado")</p>
-                                        @if (!string.IsNullOrWhiteSpace(trabajo.Descripcion))
-                                        {
-                                            <p><strong>Descripción:</strong> @trabajo.Descripcion</p>
-                                        }
-                                        @if (!string.IsNullOrWhiteSpace(trabajo.EmpresaResponsable))
-                                        {
-                                            <p><strong>Empresa responsable:</strong> @trabajo.EmpresaResponsable</p>
-                                        }
-                                        <p><strong>Fecha:</strong> @(trabajo.FechaTrabajo?.ToString("dd/MM/yyyy") ?? "Sin especificar")</p>
-                                        @if (!string.IsNullOrWhiteSpace(trabajo.Observaciones))
-                                        {
-                                            <p><strong>Observaciones:</strong> @trabajo.Observaciones</p>
-                                        }
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
 
+
+<script>
+    function mostrarFormularioTra(id) {
+        document.getElementById('vista-' + id).style.display = 'none';
+        document.getElementById('formulario-' + id).style.display = 'block';
+    }
+
+    function cancelarEdicionTra(id) {
+        document.getElementById('vista-' + id).style.display = 'block';
+        document.getElementById('formulario-' + id).style.display = 'none';
+    }
+</script>
         @if (Model.PlanimetriaExistentes != null && Model.PlanimetriaExistentes.Any())
         {
             <div class="card shadow-sm mb-4">
@@ -590,24 +1249,79 @@
                     <h4 class="mb-0">📁 Planimetría Existente</h4>
                 </div>
                 <div class="card-body">
-                    @foreach (var doc in Model.PlanimetriaExistentes)
-                    {
-                        <div class="border rounded p-3 mb-3 shadow-sm">
-                            <p><strong>Tipo de planimetría:</strong> @doc.TipoPlanimetria</p>
-
-                            @if (!string.IsNullOrEmpty(doc.Observaciones))
+@foreach (var doc in Model.PlanimetriaExistentes)
+{
+    var planimetriaId = doc.IdPlanimetria;
+    <div class="border rounded p-3 mb-3 shadow-sm" id="container-@planimetriaId">
+        <!-- Vista de solo lectura -->
+        <div id="view-@planimetriaId">
+            <p><strong>Tipo de planimetría:</strong> @doc.TipoPlanimetria</p>
+            @if (!string.IsNullOrEmpty(doc.Observaciones))
+            {
+                <p><strong>Observaciones:</strong> @doc.Observaciones</p>
+            }
+            <div class="d-flex gap-2">
+                            @if (rol == 1 || rol == 2)
                             {
-                                <p><strong>Observaciones:</strong> @doc.Observaciones</p>
+                <button class="btn btn-sm btn-outline-secondary" type="button" onclick="activarEdicionPlani(@planimetriaId)">✏️ Modo edición</button>
                             }
+                <a class="btn btn-sm btn-outline-primary ms-auto" href="@doc.RutaArchivo" target="_blank" download>
+                    📥 Descargar archivo
+                </a>
+            </div>
+        </div>
 
-                            <a class="btn btn-sm btn-outline-primary" href="@doc.RutaArchivo" target="_blank" download>
-                                Descargar archivo
-                            </a>
-                        </div>
-                    }
+        <!-- Formulario de edición (oculto por defecto) -->
+        <form id="form-@planimetriaId" asp-action="ActualizarPlanimetria" asp-controller="Planimetria" method="post" style="display:none;">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="IdPlanimetria" value="@doc.IdPlanimetria" />
+            <div class="mb-2">
+                <label class="form-label"><strong>Tipo de planimetría:</strong></label>
+                            <select name="TipoPlanimetria" class="form-select form-select-sm">
+                                <option>Planos impresos</option>
+                                <option>Planos a mano</option>
+                                <option>Modelos 3D</option>
+                                <option>Maqueta</option>
+                            </select>
+            </div>
+
+            <div class="mb-2">
+                <label class="form-label"><strong>Observaciones:</strong></label>
+                <textarea name="Observaciones" class="form-control form-control-sm">@doc.Observaciones</textarea>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-sm btn-success">💾 Guardar cambios</button>
+                            @if (rol == 1 || rol == 2)
+                            {
+                <form asp-action="Eliminar" asp-controller="Planimetria" method="post" onsubmit="return confirm('¿Estás seguro de eliminar esta planimetría?');" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="idPlanimetria" value="@doc.IdPlanimetria" />
+                    <input type="hidden" name="idIdentificacion" value="@doc.IdIdentificacion" />
+                    <button type="submit" class="btn btn-sm btn-danger">🗑️ Eliminar</button>
+                </form>
+                }
+                <button type="button" class="btn btn-sm btn-secondary ms-auto" onclick="cancelarEdicionPlani(@planimetriaId)">❌ Cancelar</button>
+            </div>
+        </form>
+    </div>
+}
+
                 </div>
             </div>
         }
+
+<script>
+    function activarEdicionPlani(id) {
+        document.getElementById(`view-${id}`).style.display = 'none';
+        document.getElementById(`form-${id}`).style.display = 'block';
+    }
+
+    function cancelarEdicionPlani(id) {
+        document.getElementById(`form-${id}`).style.display = 'none';
+        document.getElementById(`view-${id}`).style.display = 'block';
+    }
+</script>
 
         @if (Model.DocumentoLegals != null && Model.DocumentoLegals.Any())
         {
@@ -619,22 +1333,116 @@
                     <ul class="list-group list-group-flush">
                         @foreach (var doc in Model.DocumentoLegals)
                         {
-                            <li class="list-group-item">
-                                <a href="@doc.RutaArchivo" target="_blank">
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="flex-grow-1">
+                                <a href="@doc.RutaArchivo" target="_blank" class="fw-bold">
                                     @doc.NombreDocumento
                                 </a>
-                            </li>
+
+                                <!-- Formulario de edición oculto por defecto -->
+                                <form asp-action="ActualizarNombreDocumentoLegal" asp-controller="DocumentoLegal" method="post" class="mt-2 d-none" id="formEditarNombre_@doc.Id">
+                                    <input type="hidden" name="idDocumento" value="@doc.Id" />
+                                    <div class="input-group input-group-sm">
+                                        <input type="text" name="nuevoNombre" class="form-control" value="@doc.NombreDocumento" required />
+                                        <button type="submit" class="btn btn-success">Guardar</button>
+                                        <button type="button" class="btn btn-secondary" onclick="toggleEdicion(@doc.Id)">Cancelar</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div class="ms-2">
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="toggleEdicion(@doc.Id)">✏️</button>
+                                <form asp-action="EliminarDocumentoLegal" asp-controller="DocumentoLegal" method="post" class="d-inline">
+                                    <input type="hidden" name="idDocumento" value="@doc.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar este documento?')">🗑️</button>
+                                </form>
+                            </div>
+                        </div>
+                    </li>
+
                         }
                     </ul>
                 </div>
             </div>
         }
 
+<script>
+    function toggleEdicion(id) {
+        const form = document.getElementById('formEditarNombre_' + id);
+        if (form.classList.contains('d-none')) {
+            form.classList.remove('d-none');
+        } else {
+            form.classList.add('d-none');
+        }
+    }
+</script>
 
-
-
-
+@if (Model.Fotos != null && Model.Fotos.Any())
+{
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white">
+            <h4 class="mb-0">📷 Galería de Fotos</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                @foreach (var foto in Model.Fotos)
+                {
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <img src="@Url.Content("~/fotos/" + foto.NombreArchivo)"
+                                 class="card-img-top"
+                                 alt="Foto"
+                                 style="max-height: 200px; object-fit: cover; cursor: pointer;"
+                                 onclick="mostrarModal('@Url.Content("~/fotos/" + foto.NombreArchivo)', '@foto.Descripcion')" />
+                            <div class="card-body">
+                                <p class="card-text">@foto.Descripcion</p>
+                                <form asp-controller="Fotos" asp-action="EliminarConfirmado" method="post" onsubmit="return confirm('¿Eliminar esta foto?');">
+                                    <input type="hidden" name="id" value="@foto.Id" />
+                                    <button type="submit" class="btn btn-sm btn-danger">🗑 Eliminar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 }
+            </div>
+        </div>
+    </div>
+}
+
+<!-- MODAL PARA IMAGEN -->
+<div id="modalFoto" style="display:none; position:fixed; z-index:9999; top:0; left:0; width:100%; height:100%; background-color:rgba(0,0,0,0.8); justify-content:center; align-items:center;">
+    <span onclick="cerrarModal()" style="position:absolute; top:20px; right:30px; color:white; font-size:40px; font-weight:bold; cursor:pointer;">&times;</span>
+    <div style="max-width:90%; max-height:90%; text-align:center;">
+        <img id="imgModal" src="" style="max-width:100%; max-height:80vh; border-radius:8px; box-shadow:0 0 20px black;" />
+        <p id="descModal" style="color:white; margin-top:10px;"></p>
+    </div>
+</div>
+
+
+
+<script>
+    function mostrarModal(src, descripcion) {
+        document.getElementById("imgModal").src = src;
+        document.getElementById("descModal").innerText = descripcion;
+        document.getElementById("modalFoto").style.display = "flex";
+    }
+
+    function cerrarModal() {
+        document.getElementById("modalFoto").style.display = "none";
+    }
+
+    // También puedes cerrar el modal al hacer clic fuera de la imagen
+    window.onclick = function (event) {
+        const modal = document.getElementById("modalFoto");
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    };
+</script>
+
+
+                
 
 
 
@@ -644,4 +1452,3 @@
 
             
         
-}

@@ -8,11 +8,14 @@ namespace SIRECAS.Controllers
 {
     public class EstructuraController : Controller
     {
-        private readonly SirecasContext _context;
+        private readonly Sirecas2Context _context;
+        private readonly ActividadService _actividadService;
 
-        public EstructuraController(SirecasContext context)
+        public EstructuraController(Sirecas2Context context, ActividadService actividadService)
         {
             _context = context;
+            _actividadService = actividadService;
+
         }
 
         [HttpGet]
@@ -60,11 +63,33 @@ namespace SIRECAS.Controllers
                 _context.Estructuras.Add(entidad);
                 await _context.SaveChangesAsync();
 
+                await _actividadService.RegistrarActividadAsync("registró datos de estructura", model.IdIdentificacion);
+
                 return RedirectToAction("MenuSeccionesRegistro", "Identificacion", new { idIdentificacion = model.IdIdentificacion });
             }
 
             return View(model);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Autorizado(1, 2)]
+        public async Task<IActionResult> Eliminar_Estructura(int idIdentificacion)
+        {
+            var estructura = await _context.Estructuras
+                .FirstOrDefaultAsync(e => e.IdIdentificacion == idIdentificacion);
+
+            if (estructura != null)
+            {
+                _context.Estructuras.Remove(estructura);
+                await _context.SaveChangesAsync();
+
+                await _actividadService.RegistrarActividadAsync("eliminó datos de estructura", idIdentificacion);
+            }
+
+            return RedirectToAction("MenuSeccionesRegistro", "Identificacion", new { idIdentificacion });
+        }
+
     }
 }
 

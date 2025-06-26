@@ -1,0 +1,23 @@
+﻿@model SIRECAS.Models.ViewModels.VerificarTokenViewModel
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/verificar-token.css" />
+}
+
+<div class="token-container">
+    <h2>Verificar Código</h2>
+
+    <form asp-action="VerificarToken" method="post" class="token-form">
+        <div class="form-group">
+            <label for="Token">Código de verificación</label>
+            <input asp-for="Token" class="token-input" maxlength="6" pattern="\d{6}" title="Debe contener 6 dígitos" />
+            <span asp-validation-for="Token" class="validation-message"></span>
+        </div>
+
+        <button type="submit" class="token-button">Verificar</button>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

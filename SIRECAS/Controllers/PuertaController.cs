@@ -8,11 +8,13 @@ namespace SIRECAS.Controllers
 {
     public class PuertaController : Controller
     {
-        private readonly SirecasContext _context;
+        private readonly Sirecas2Context _context;
+        private readonly ActividadService _actividadService;
 
-        public PuertaController(SirecasContext context)
+        public PuertaController(Sirecas2Context context, ActividadService actividadService)
         {
             _context = context;
+            _actividadService = actividadService;
         }
 
         [HttpGet]
@@ -56,10 +58,31 @@ namespace SIRECAS.Controllers
                 _context.Puertas.Add(entidad);
                 await _context.SaveChangesAsync();
 
+                await _actividadService.RegistrarActividadAsync("registró datos de puertas", model.IdIdentificacion);
+
                 return RedirectToAction("MenuSeccionesRegistro", "Identificacion", new { idIdentificacion = model.IdIdentificacion });
             }
 
             return View(model);
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Autorizado(1, 2)]
+        public async Task<IActionResult> Eliminar_Puertas(int idIdentificacion)
+        {
+            var entidad = await _context.Puertas.FirstOrDefaultAsync(p => p.IdIdentificacion == idIdentificacion);
+            if (entidad != null)
+            {
+                _context.Puertas.Remove(entidad);
+                await _context.SaveChangesAsync();
+
+                // Registrar actividad
+                await _actividadService.RegistrarActividadAsync("eliminó datos de puertas", idIdentificacion);
+            }
+
+            return RedirectToAction("MenuSeccionesRegistro", "Identificacion", new { idIdentificacion });
+        }
+
+
     }
 }

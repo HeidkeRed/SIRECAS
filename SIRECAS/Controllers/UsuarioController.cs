@@ -11,11 +11,14 @@ namespace SIRECAS.Controllers
     [Autorizado(1)] // Solo admin
     public class UsuarioController : Controller
     {
-        private readonly SirecasContext _context;
+        private readonly Sirecas2Context _context;
 
-        public UsuarioController(SirecasContext context)
+        private readonly EmailService _emailService;
+
+        public UsuarioController(Sirecas2Context context, EmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -26,7 +29,8 @@ namespace SIRECAS.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Registrar(RegistrarUsuarioViewModel model)
+        [Autorizado(1)]
+        public async Task<IActionResult> Registrar(RegistrarUsuarioViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
@@ -51,13 +55,29 @@ namespace SIRECAS.Controllers
                 FechaRegistro = DateTime.Now
             };
 
-
             _context.Usuarios.Add(nuevo);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            TempData["Exito"] = "Usuario registrado exitosamente.";
+            // Enviar correo de bienvenida con indicaciones
+            string asunto = "Bienvenido a SIRECAS";
+            string cuerpoHtml = $@"
+        <p>¡Hola {nuevo.Nombre}!</p>
+        <p>Se ha creado una cuenta para ti en SIRECAS con el siguiente usuario:</p>
+        <ul>
+            <li><strong>Usuario (Email):</strong> {nuevo.Email}</li>
+        </ul>
+        <p>Por seguridad, tu contraseña no se envía por correo.</p>
+        <p>Si olvidaste tu contraseña, utiliza la opción <strong>“¿Olvidó su contraseña?”</strong> en la página de inicio de sesión para restablecerla.</p>
+        <p>Saludos,<br/>El equipo de SIRECAS</p>
+    ";
+
+            await _emailService.EnviarCorreoAsync(nuevo.Email, asunto, cuerpoHtml);
+
+            TempData["Exito"] = "Usuario registrado exitosamente y correo de bienvenida enviado.";
             return RedirectToAction("Registrar");
         }
+
+
 
         public async Task<IActionResult> ListaUsuarios()
         {
@@ -71,7 +91,7 @@ namespace SIRECAS.Controllers
             var usuario = await _context.Usuarios.FindAsync(id);
             if (usuario != null)
             {
-                usuario.Autorizado = !(usuario.Autorizado ?? false);
+                usuario.Autorizado = !usuario.Autorizado;  // sin '?? false'
                 await _context.SaveChangesAsync();
             }
 
@@ -79,7 +99,9 @@ namespace SIRECAS.Controllers
         }
 
 
+
         [HttpPost]
+        [Autorizado(1)]
         public async Task<IActionResult> Eliminar(int id)
         {
             var usuario = await _context.Usuarios.FindAsync(id);
@@ -93,6 +115,7 @@ namespace SIRECAS.Controllers
         }
 
         [HttpPost]
+        [Autorizado(1)]
         public async Task<IActionResult> Actualizar(Usuario usuarioActualizado)
         {
             var usuario = await _context.Usuarios.FindAsync(usuarioActualizado.IdUsuario);

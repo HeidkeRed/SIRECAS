@@ -1,0 +1,46 @@
+﻿@model SIRECAS.Models.ViewModels.FotoSubidaViewModel
+
+@{
+    ViewData["Title"] = "Subir Foto";
+}
+
+<h2>Subir Foto</h2>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+<form asp-action="SubirFotos" asp-controller="Fotos" enctype="multipart/form-data" method="post">
+    <input type="hidden" asp-for="IdIdentificacion" />
+
+    <div class="form-group">
+        <label asp-for="Archivo" class="control-label"></label>
+        <input asp-for="Archivo" class="form-control" type="file" id="archivoInput" />
+        <span asp-validation-for="Archivo" class="text-danger"></span>
+        <small id="nombreArchivo" class="form-text text-muted"></small>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Descripcion" class="control-label"></label>
+        <input asp-for="Descripcion" class="form-control" />
+        <span asp-validation-for="Descripcion" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Subir</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('archivoInput').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 2 * 1024 * 1024) {
+                    alert("La imagen supera el tamaño máximo permitido de 2 MB.");
+                    e.target.value = ''; // Limpiar el archivo seleccionado
+                    document.getElementById('nombreArchivo').textContent = '';
+                } else {
+                    document.getElementById('nombreArchivo').textContent = "Archivo seleccionado: " + file.name;
+                }
+            }
+        });
+    </script>
+}

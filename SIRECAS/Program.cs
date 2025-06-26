@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
+using SIRECAS.Helpers;
 using SIRECAS.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
 // Agregar contexto de base de datos
-builder.Services.AddDbContext<SirecasContext>(options =>
+builder.Services.AddDbContext<Sirecas2Context>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("SirecasContext"));
 });
@@ -28,6 +29,13 @@ builder.Services.Configure<FormOptions>(options =>
 
 // Agregar soporte para sesiones
 builder.Services.AddSession(); // ? Esto va aquí, antes de Build
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ActividadService>();
+
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddTransient<EmailService>();
+
 
 var app = builder.Build();
 

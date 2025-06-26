@@ -47,10 +47,14 @@ namespace SIRECAS.Models.ViewModels
         public decimal? M2Construccion { get; set; }
 
         [Display(Name = "Coordenada X (Longitud)")]
-        public decimal? CoordenadaX { get; set; }
+        [RegularExpression(@"^-?\d{1,3}(\.\d{1,10})?$",
+            ErrorMessage = "La coordenada X debe tener el formato decimal correcto (ej. 19.123456).")]
+        public string CoordenadaX { get; set; }
 
         [Display(Name = "Coordenada Y (Latitud)")]
-        public decimal? CoordenadaY { get; set; }
+        [RegularExpression(@"^-?\d{1,3}(\.\d{1,10})?$",
+            ErrorMessage = "La coordenada Y debe tener el formato decimal correcto (ej. -98.123456).")]
+        public string CoordenadaY { get; set; }
     }
 }
 

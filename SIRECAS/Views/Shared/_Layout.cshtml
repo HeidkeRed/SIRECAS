@@ -11,51 +11,84 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SIRECAS.styles.css" asp-append-version="true" />
+    @RenderSection("Styles", required: false)
 </head>
 <body>
     @if (sesionActiva)
     {
-        <header>
-            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-                <div class="container-fluid">
-                    <a class="navbar-brand" asp-controller="Home" asp-action="Inicio">SIRECAS</a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                        <ul class="navbar-nav flex-grow-1">
-                            @if (idRol == 1 || idRol == 2)
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Identificacion" asp-action="Index">Registro</a>
-                                </li>
-                            }
+<header class="apple-header">
+    <div class="apple-navbar">
+        <!-- Logo pequeño -->
+        <a class="apple-logo" asp-controller="Home" asp-action="Inicio">
+            <img src="~/imagenes/logo.svg" alt="SIRECAS" />
+        </a>
 
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Identificacion" asp-action="Lista_Identificaciones">Artesacros</a>
-                            </li>
+        <!-- Links -->
+        <nav class="apple-nav">
+            @if (idRol == 1 || idRol == 2)
+            {
+                <a class="apple-link" asp-controller="Identificacion" asp-action="Index">Registro</a>
+            }
+            <a class="apple-link" asp-controller="Identificacion" asp-action="Lista_Identificaciones">Artesacros</a>
 
-                            @if (idRol == 1)
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Usuario" asp-action="Registrar">Registrar Usuarios</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-controller="Usuario" asp-action="ListaUsuarios">Administrar Usuarios</a>
-                                </li>
-                            }
+            @if (idRol == 1)
+            {
+                <a class="apple-link" asp-controller="Usuario" asp-action="Registrar">Registrar Usuarios</a>
+                <a class="apple-link" asp-controller="Usuario" asp-action="ListaUsuarios">Administrar Usuarios</a>
+                <a class="apple-link" asp-controller="ActividadRegistro" asp-action="AdministradorActividad">
+                    Actividades Registradas
+                </a>
+            }
 
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Login" asp-action="CerrarSesion">Cerrar sesión</a>
-                            </li>
-                        </ul>
+            <a class="apple-link" asp-controller="Login" asp-action="CerrarSesion">Cerrar sesión</a>
+        </nav>
+    </div>
+</header>
 
-                    </div>
-                </div>
-            </nav>
-        </header>
     }
+<style>
+        /* Apple-style header */
+        .apple-header {
+            background-color: #fff;
+            border-bottom: 1px solid #ddd;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
 
+        .apple-navbar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+        }
+
+        .apple-logo img {
+            height: 24px;
+            margin-right: 30px;
+        }
+
+        .apple-nav {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .apple-link {
+            color: #333;
+            text-decoration: none;
+            font-size: 15px;
+            padding: 5px 10px;
+            transition: color 0.3s ease;
+        }
+
+            .apple-link:hover {
+                color: #0071e3; /* Azul Apple */
+            }
+
+</style>
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()

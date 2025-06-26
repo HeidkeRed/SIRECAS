@@ -8,11 +8,13 @@ namespace SIRECAS.Controllers
 {
     public class EntrepisoController : Controller
     {
-        private readonly SirecasContext _context;
+        private readonly Sirecas2Context _context;
+        private readonly ActividadService _actividadService;
 
-        public EntrepisoController(SirecasContext context)
+        public EntrepisoController(Sirecas2Context context, ActividadService actividadService)
         {
             _context = context;
+            _actividadService = actividadService;
         }
 
         [HttpGet]
@@ -56,10 +58,30 @@ namespace SIRECAS.Controllers
                 _context.Entrepisos.Add(entidad);
                 await _context.SaveChangesAsync();
 
+                await _actividadService.RegistrarActividadAsync("registró un entrepiso", model.IdIdentificacion);
+
                 return RedirectToAction("MenuSeccionesRegistro", "Identificacion", new { idIdentificacion = model.IdIdentificacion });
             }
 
             return View(model);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Autorizado(1, 2)]
+        public async Task<IActionResult> Eliminar_Entrepiso(int idIdentificacion)
+        {
+            var entidad = await _context.Entrepisos.FirstOrDefaultAsync(e => e.IdIdentificacion == idIdentificacion);
+            if (entidad != null)
+            {
+                _context.Entrepisos.Remove(entidad);
+                await _context.SaveChangesAsync();
+
+                await _actividadService.RegistrarActividadAsync("eliminó un entrepiso", idIdentificacion);
+            }
+
+            return RedirectToAction("MenuSeccionesRegistro", "Identificacion", new { idIdentificacion });
+        }
+
     }
 }

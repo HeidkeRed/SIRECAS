@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "Recuperar Contraseña";
+}
+
+<h2>Recuperar Contraseña</h2>
+
+<form asp-action="RecuperarContrasena" method="post">
+    <div class="form-group">
+        <label for="email">Correo Electrónico</label>
+        <input type="email" name="email" class="form-control" required />
+    </div>
+    <button type="submit" class="btn btn-primary mt-3">Enviar Instrucciones</button>
+</form>
+
+@if (TempData["Exito"] != null)
+{
+    <div class="alert alert-success mt-3">@TempData["Exito"]</div>
+}
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger mt-3">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <div>@error.ErrorMessage</div>
+        }
+    </div>
+}
+

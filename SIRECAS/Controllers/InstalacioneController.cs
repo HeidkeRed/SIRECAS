@@ -1,30 +1,32 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using SIRECAS.Models;
 using SIRECAS.Models.ViewModels;
 using SIRECAS.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 namespace SIRECAS.Controllers
 {
     public class InstalacioneController : Controller
     {
-        private readonly SirecasContext _context;
+        private readonly Sirecas2Context _context;
+        private readonly ActividadService _actividadService;
 
-        public InstalacioneController(SirecasContext context)
+        public InstalacioneController(Sirecas2Context context, ActividadService actividadService)
         {
             _context = context;
+            _actividadService = actividadService;
         }
 
         [HttpGet]
         [Autorizado(1, 2)]
         public IActionResult Registrar_Instalacione(int idIdentificacion)
         {
-            var model = new InstalacioneViewModel
+            var vm = new InstalacioneViewModel
             {
                 IdIdentificacion = idIdentificacion
             };
 
-            return View(model);
+            return View(vm);
         }
 
         [HttpPost]
@@ -34,46 +36,83 @@ namespace SIRECAS.Controllers
         {
             if (ModelState.IsValid)
             {
-                var yaExiste = await _context.Instalaciones
-                    .AnyAsync(i => i.IdIdentificacion == model.IdIdentificacion);
+                bool yaExiste = model.Tipo != "Otro" && _context.Instalaciones.Any(i =>
+                    i.IdIdentificacion == model.IdIdentificacion &&
+                    i.Tipo == model.Tipo);
 
                 if (yaExiste)
                 {
-                    ModelState.AddModelError("", "Ya existe un registro de instalaciones para esta identificación.");
+                    ModelState.AddModelError(string.Empty, $"Ya se ha registrado una instalación del tipo {model.Tipo}.");
                     return View(model);
                 }
 
                 var entidad = new Instalacione
                 {
                     IdIdentificacion = model.IdIdentificacion,
-                    ElectricaVisible = model.ElectricaVisible,
-                    ElectricaOculta = model.ElectricaOculta,
-                    ObservacionesElectrica = model.ObservacionesElectrica,
-                    SanitariaVisible = model.SanitariaVisible,
-                    SanitariaOculta = model.SanitariaOculta,
-                    ObservacionesSanitaria = model.ObservacionesSanitaria,
-                    HidraulicaVisible = model.HidraulicaVisible,
-                    HidraulicaOculta = model.HidraulicaOculta,
-                    ObservacionesHidraulica = model.ObservacionesHidraulica,
-                    GasVisible = model.GasVisible,
-                    GasOculta = model.GasOculta,
-                    ObservacionesGas = model.ObservacionesGas,
-                    TelefoniaVisible = model.TelefoniaVisible,
-                    TelefoniaOculta = model.TelefoniaOculta,
-                    ObservacionesTelefonia = model.ObservacionesTelefonia,
-                    OtroVisible = model.OtroVisible,
-                    OtroOculta = model.OtroOculta,
-                    ObservacionesOtro = model.ObservacionesOtro
+                    Tipo = model.Tipo,
+                    Visible = model.Visible,
+                    Oculta = model.Oculta,
+                    Observaciones = model.Observaciones
                 };
 
                 _context.Instalaciones.Add(entidad);
                 await _context.SaveChangesAsync();
+
+                await _actividadService.RegistrarActividadAsync($"registró una instalación del tipo {model.Tipo}", model.IdIdentificacion);
 
                 return RedirectToAction("MenuSeccionesRegistro", "Identificacion", new { idIdentificacion = model.IdIdentificacion });
             }
 
             return View(model);
         }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Autorizado(1, 2)]
+        public async Task<IActionResult> ActualizarInstalacion(int Id, string Observaciones, bool Visible, bool Oculta, int IdIdentificacion)
+        {
+            var instalacionExistente = await _context.Instalaciones.FindAsync(Id);
+            if (instalacionExistente == null)
+            {
+                return NotFound();
+            }
+
+            instalacionExistente.Observaciones = Observaciones;
+            instalacionExistente.Visible = Visible;
+            instalacionExistente.Oculta = Oculta;
+
+            await _context.SaveChangesAsync();
+
+            await _actividadService.RegistrarActividadAsync(
+                $"actualizó la instalación de tipo '{instalacionExistente.Tipo}'",
+                IdIdentificacion
+            );
+
+            return RedirectToAction("Resumen", "Identificacion", new { idIdentificacion = IdIdentificacion });
+        }
+
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Autorizado(1, 2)]
+        public async Task<IActionResult> EliminarInstalacion(int Id)
+        {
+            var instalacion = await _context.Instalaciones.FindAsync(Id);
+            if (instalacion == null)
+            {
+                return NotFound();
+            }
+
+            _context.Instalaciones.Remove(instalacion);
+            await _context.SaveChangesAsync();
+
+            await _actividadService.RegistrarActividadAsync($"eliminó la instalación de tipo '{instalacion.Tipo}'", instalacion.IdIdentificacion);
+
+            return RedirectToAction("Resumen", "Identificacion", new { idIdentificacion = instalacion.IdIdentificacion });
+        }
+
+
     }
 }
-

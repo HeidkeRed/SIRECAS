@@ -8,12 +8,13 @@ namespace SIRECAS.Controllers
 {
     public class IdentificacionController : Controller
     {
-        private readonly SirecasContext _context;
+        private readonly Sirecas2Context _context;
 
-        public IdentificacionController(SirecasContext context)
+        public IdentificacionController(Sirecas2Context context)
         {
             _context = context;
         }
+
 
         [HttpGet]
         [Autorizado(1, 2)] // Solo Admin y Editor
@@ -21,7 +22,6 @@ namespace SIRECAS.Controllers
         {
             return View();
         }
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Autorizado(1, 2)] // Solo Admin y Editor
@@ -29,6 +29,18 @@ namespace SIRECAS.Controllers
         {
             if (ModelState.IsValid)
             {
+                decimal? coordenadaX = null;
+                if (!string.IsNullOrWhiteSpace(model.CoordenadaX) && decimal.TryParse(model.CoordenadaX, out var x))
+                {
+                    coordenadaX = x;
+                }
+
+                decimal? coordenadaY = null;
+                if (!string.IsNullOrWhiteSpace(model.CoordenadaY) && decimal.TryParse(model.CoordenadaY, out var y))
+                {
+                    coordenadaY = y;
+                }
+
                 var entidad = new Identificacion
                 {
                     NombreParroquia = model.NombreParroquia,
@@ -48,18 +60,36 @@ namespace SIRECAS.Controllers
                     Fondo = model.Fondo,
                     M2terreno = model.M2Terreno,
                     M2construccion = model.M2Construccion,
-                    CoordenadaX = model.CoordenadaX,
-                    CoordenadaY = model.CoordenadaY
+                    CoordenadaX = coordenadaX,
+                    CoordenadaY = coordenadaY
                 };
 
                 _context.Identificacions.Add(entidad);
                 await _context.SaveChangesAsync();
+
+                // Registro de actividad
+                var idUsuario = HttpContext.Session.GetInt32("IdUsuario");
+                if (idUsuario != null)
+                {
+                    var actividad = new ActividadRegistro
+                    {
+                        UsuarioId = idUsuario.Value,
+                        Actividad = $"Registró una nueva ficha de Identificación: {entidad.NombreParroquia}.",
+                        Fecha = DateTime.Now.Date,
+                        Hora = TimeOnly.FromDateTime(DateTime.Now)
+                    };
+
+                    _context.ActividadRegistro.Add(actividad);
+                    await _context.SaveChangesAsync();
+                }
 
                 return RedirectToAction("Confirmacion");
             }
 
             return View(model);
         }
+
+
 
         public IActionResult Confirmacion()
         {
@@ -74,15 +104,15 @@ namespace SIRECAS.Controllers
         }
 
         [Autorizado(1, 2)] // Solo Admin y Editor
-        public IActionResult MenuSeccionesRegistro(int idIdentificacion)
+        public IActionResult MenuSeccionesRegistro(int IdIdentificacion)
         {
-            ViewBag.IdIdentificacion = idIdentificacion;
+            ViewBag.IdIdentificacion = IdIdentificacion;
             return View();
         }
 
         [HttpGet]
         [Autorizado(1, 2, 3)] // Todos pueden ver el resumen
-        public async Task<IActionResult> Resumen(int idIdentificacion)
+        public async Task<IActionResult> Resumen(int IdIdentificacion)
         {
             var identificacion = await _context.Identificacions
                 .Include(i => i.DescripcionDelEdificios)
@@ -99,17 +129,34 @@ namespace SIRECAS.Controllers
                 .Include(i => i.DatosHistoricos)
                 .Include(i => i.ElementoArteSacros)
                     .ThenInclude(e => e.ArteSacroFotos)
-                .Include(i => i.DanoObservables)            
+                .Include(i => i.DanoObservables)
                     .ThenInclude(d => d.DanoFotos)
                 .Include(i => i.RegistroTrabajos)
                 .Include(i => i.PlanimetriaExistentes)
                 .Include(i => i.DocumentoLegals)
-                .FirstOrDefaultAsync(i => i.IdIdentificacion == idIdentificacion);
+                .Include(i => i.Fotos)
+                .FirstOrDefaultAsync(i => i.IdIdentificacion == IdIdentificacion);
 
             if (identificacion == null)
                 return NotFound();
 
-            // Aquí detectamos la IP
+            // 👤 Registrar actividad de consulta
+            var idUsuario = HttpContext.Session.GetInt32("IdUsuario");
+            if (idUsuario != null)
+            {
+                var actividad = new ActividadRegistro
+                {
+                    UsuarioId = idUsuario.Value,
+                    Actividad = $"Consultó la ficha de resumen de la parroquia: {identificacion.NombreParroquia}.",
+                    Fecha = DateTime.Now.Date,
+                    Hora = TimeOnly.FromDateTime(DateTime.Now)
+                };
+
+                _context.ActividadRegistro.Add(actividad);
+                await _context.SaveChangesAsync();
+            }
+
+            // 🌐 Detectar IP y ocultar documentos si no está en la lista permitida
             var userIp = HttpContext.Connection.RemoteIpAddress?.ToString();
             var ipAutorizadas = new List<string>
     {
@@ -118,7 +165,6 @@ namespace SIRECAS.Controllers
         "192.168.1.22"
     };
 
-            // Si la IP no está autorizada, ocultamos los documentos legales
             if (!ipAutorizadas.Contains(userIp))
             {
                 identificacion.DocumentoLegals = new List<DocumentoLegal>();
@@ -126,5 +172,127 @@ namespace SIRECAS.Controllers
 
             return View(identificacion);
         }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Autorizado(1, 2)] // Que solo administradores y editores puedan actualizar
+        public async Task<IActionResult> ActualizarIdentificacion(Identificacion model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Si el modelo no es válido, regresa a la misma vista
+                return View("Resumen", model);
+            }
+
+            var identificacion = await _context.Identificacions.FindAsync(model.IdIdentificacion);
+
+            if (identificacion == null)
+            {
+                return NotFound();
+            }
+
+            // Actualizar los campos permitidos
+            identificacion.NombreParroquia = model.NombreParroquia;
+            identificacion.NombreTitular = model.NombreTitular;
+            identificacion.CorreoElectronico = model.CorreoElectronico;
+            identificacion.Telefono = model.Telefono;
+            identificacion.AnioConstruccion = model.AnioConstruccion;
+            identificacion.Calle = model.Calle;
+            identificacion.NumeroEdificio = model.NumeroEdificio;
+            identificacion.Colonia = model.Colonia;
+            identificacion.CodigoPostal = model.CodigoPostal;
+            identificacion.EntreCalles = model.EntreCalles;
+            identificacion.Municipio = model.Municipio;
+            identificacion.UbicacionManzana = model.UbicacionManzana;
+            identificacion.ConstruccionesColindantes = model.ConstruccionesColindantes;
+            identificacion.Frente = model.Frente;
+            identificacion.Fondo = model.Fondo;
+            identificacion.M2terreno = model.M2terreno;
+            identificacion.M2construccion = model.M2construccion;
+            identificacion.CoordenadaY = model.CoordenadaY;
+            identificacion.CoordenadaX = model.CoordenadaX;
+
+            // Guardar cambios
+            await _context.SaveChangesAsync();
+
+            // 👤 Registrar actividad
+            var idUsuario = HttpContext.Session.GetInt32("IdUsuario");
+            if (idUsuario != null)
+            {
+                var actividad = new ActividadRegistro
+                {
+                    UsuarioId = idUsuario.Value,
+                    Actividad = $"Actualizó la identificación de la parroquia: {model.NombreParroquia}.",
+                    Fecha = DateTime.Now.Date,
+                    Hora = TimeOnly.FromDateTime(DateTime.Now)
+                };
+
+                _context.ActividadRegistro.Add(actividad);
+                await _context.SaveChangesAsync();
+            }
+
+            TempData["SuccessMessage"] = "Información actualizada correctamente.";
+            return RedirectToAction("Resumen", "Identificacion", new { idIdentificacion = model.IdIdentificacion });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Autorizado(1)] // Solo Admin
+        public async Task<IActionResult> EliminarIdentificacion(int idIdentificacion)
+        {
+            var identificacion = await _context.Identificacions
+                .Include(i => i.DescripcionDelEdificios)
+                .Include(i => i.DanoObservables)
+                .Include(i => i.Instalacione)
+                .Include(i => i.DatosHistoricos)
+                .Include(i => i.DocumentoLegals)
+                .Include(i => i.ElementoArteSacros)
+                .Include(i => i.PlanimetriaExistentes)
+                .Include(i => i.RegistroTrabajos)
+                .FirstOrDefaultAsync(i => i.IdIdentificacion == idIdentificacion);
+
+            if (identificacion == null)
+                return NotFound();
+
+            // Verificar si hay elementos relacionados
+            if (identificacion.DescripcionDelEdificios.Any() ||
+                identificacion.DanoObservables.Any() ||
+                identificacion.Instalacione.Any() ||
+                identificacion.DatosHistoricos.Any() ||
+                identificacion.DocumentoLegals.Any() ||
+                identificacion.ElementoArteSacros.Any() ||
+                identificacion.PlanimetriaExistentes.Any() ||
+                identificacion.RegistroTrabajos.Any())
+            {
+                TempData["ErrorMessage"] = "No se puede eliminar. Existen datos relacionados con esta identificación.";
+                return RedirectToAction("Resumen", new { idIdentificacion });
+            }
+
+            string nombreParroquia = identificacion.NombreParroquia;
+
+            _context.Identificacions.Remove(identificacion);
+            await _context.SaveChangesAsync();
+
+            // Registrar actividad
+            var idUsuario = HttpContext.Session.GetInt32("IdUsuario");
+            if (idUsuario != null)
+            {
+                var actividad = new ActividadRegistro
+                {
+                    UsuarioId = idUsuario.Value,
+                    Actividad = $"Eliminó la identificación de la parroquia: {nombreParroquia}.",
+                    Fecha = DateTime.Now.Date,
+                    Hora = TimeOnly.FromDateTime(DateTime.Now)
+                };
+
+                _context.ActividadRegistro.Add(actividad);
+                await _context.SaveChangesAsync();
+            }
+
+            TempData["SuccessMessage"] = "Identificación eliminada correctamente.";
+            return RedirectToAction("Lista_identificaciones");
+        }
+
     }
 }

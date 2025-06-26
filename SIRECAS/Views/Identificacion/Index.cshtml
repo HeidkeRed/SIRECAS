@@ -1,140 +1,150 @@
 ﻿@model SIRECAS.Models.ViewModels.IdentificacionViewModel
 
-@{
-    ViewData["Title"] = "Registro de Edificio";
+@section Styles {
+    <link rel="stylesheet" href="~/css/identificacion.css" />
 }
 
 <h2>Registro de Identificación</h2>
 
-<form asp-action="Index" method="post">
+<form asp-action="Index" method="post" class="identificacion-form">
     @Html.AntiForgeryToken()
-    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.ValidationSummary(true, "", new { @class = "validation-summary" })
 
-    <div class="mb-3">
+    <div class="form-group">
         <label asp-for="NombreParroquia"></label>
-        <input asp-for="NombreParroquia" class="form-control" />
-        <span asp-validation-for="NombreParroquia" class="text-danger"></span>
+        <input asp-for="NombreParroquia" class="form-input" />
+        <span asp-validation-for="NombreParroquia" class="validation-message"></span>
     </div>
 
-    <div class="mb-3">
+    <div class="form-group">
         <label asp-for="NombreTitular"></label>
-        <input asp-for="NombreTitular" class="form-control" />
-        <span asp-validation-for="NombreTitular" class="text-danger"></span>
+        <input asp-for="NombreTitular" class="form-input" />
+        <span asp-validation-for="NombreTitular" class="validation-message"></span>
     </div>
 
-    <div class="mb-3">
+    <div class="form-group">
         <label asp-for="CorreoElectronico"></label>
-        <input asp-for="CorreoElectronico" class="form-control" type="email" />
-        <span asp-validation-for="CorreoElectronico" class="text-danger"></span>
+        <input asp-for="CorreoElectronico" class="form-input" type="email" />
+        <span asp-validation-for="CorreoElectronico" class="validation-message"></span>
     </div>
 
-    <div class="mb-3">
+    <div class="form-group">
         <label asp-for="Telefono"></label>
-        <input asp-for="Telefono" class="form-control" />
-        <span asp-validation-for="Telefono" class="text-danger"></span>
+        <input asp-for="Telefono" class="form-input" />
+        <span asp-validation-for="Telefono" class="validation-message"></span>
     </div>
 
-    <div class="mb-3">
+    <div class="form-group">
         <label asp-for="AnioConstruccion"></label>
-        <input asp-for="AnioConstruccion" class="form-control" type="number" />
-        <span asp-validation-for="AnioConstruccion" class="text-danger"></span>
+        <input asp-for="AnioConstruccion" class="form-input" type="number" />
+        <span asp-validation-for="AnioConstruccion" class="validation-message"></span>
     </div>
 
-    <div class="mb-3">
+    <div class="form-group">
         <label asp-for="Calle"></label>
-        <input asp-for="Calle" class="form-control" />
-        <span asp-validation-for="Calle" class="text-danger"></span>
+        <input asp-for="Calle" class="form-input" />
+        <span asp-validation-for="Calle" class="validation-message"></span>
     </div>
 
-    <div class="mb-3">
+    <div class="form-group">
         <label asp-for="NumeroEdificio"></label>
-        <input asp-for="NumeroEdificio" class="form-control" />
-        <span asp-validation-for="NumeroEdificio" class="text-danger"></span>
+        <input asp-for="NumeroEdificio" class="form-input" />
+        <span asp-validation-for="NumeroEdificio" class="validation-message"></span>
     </div>
 
-    <div class="mb-3">
+    <div class="form-group">
         <label asp-for="EntreCalles"></label>
-        <input asp-for="EntreCalles" class="form-control" />
-        <span asp-validation-for="EntreCalles" class="text-danger"></span>
+        <input asp-for="EntreCalles" class="form-input" />
+        <span asp-validation-for="EntreCalles" class="validation-message"></span>
     </div>
 
-    <div class="mb-3">
+    <div class="form-group">
         <label asp-for="Colonia"></label>
-        <input asp-for="Colonia" class="form-control" />
-        <span asp-validation-for="Colonia" class="text-danger"></span>
+        <input asp-for="Colonia" class="form-input" />
+        <span asp-validation-for="Colonia" class="validation-message"></span>
     </div>
 
-    <div class="mb-3">
+    <div class="form-group">
         <label asp-for="CodigoPostal"></label>
-        <input asp-for="CodigoPostal" class="form-control" />
-        <span asp-validation-for="CodigoPostal" class="text-danger"></span>
+        <input asp-for="CodigoPostal" class="form-input" />
+        <span asp-validation-for="CodigoPostal" class="validation-message"></span>
     </div>
 
-    <div class="mb-3">
+    <div class="form-group">
         <label asp-for="Municipio"></label>
-        <input asp-for="Municipio" class="form-control" />
-        <span asp-validation-for="Municipio" class="text-danger"></span>
+        <input asp-for="Municipio" class="form-input" />
+        <span asp-validation-for="Municipio" class="validation-message"></span>
     </div>
 
-    <div class="mb-3">
+    <div class="form-group">
         <label asp-for="UbicacionManzana"></label>
-        <select asp-for="UbicacionManzana" class="form-control">
+        <select asp-for="UbicacionManzana" class="form-input">
             <option value="">Seleccione una opción</option>
             <option value="esquina">Esquina</option>
             <option value="medio">Medio</option>
             <option value="aislado">Aislado</option>
         </select>
-        <span asp-validation-for="UbicacionManzana" class="text-danger"></span>
+        <span asp-validation-for="UbicacionManzana" class="validation-message"></span>
     </div>
 
-    <div class="mb-3">
+    <div class="form-group">
         <label asp-for="ConstruccionesColindantes"></label>
-        <input asp-for="ConstruccionesColindantes" class="form-control" />
-        <span asp-validation-for="ConstruccionesColindantes" class="text-danger"></span>
+        <input asp-for="ConstruccionesColindantes" class="form-input" />
+        <span asp-validation-for="ConstruccionesColindantes" class="validation-message"></span>
     </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-3">
+    <div class="form-row">
+        <div class="form-group">
             <label asp-for="Frente">Frente (m)</label>
-            <input asp-for="Frente" class="form-control" type="number" step="0.01" />
-            <span asp-validation-for="Frente" class="text-danger"></span>
+            <input asp-for="Frente" class="form-input" type="number" step="0.01" />
+            <span asp-validation-for="Frente" class="validation-message"></span>
         </div>
-        <div class="col-md-6 mb-3">
+        <div class="form-group">
             <label asp-for="Fondo">Fondo (m)</label>
-            <input asp-for="Fondo" class="form-control" type="number" step="0.01" />
-            <span asp-validation-for="Fondo" class="text-danger"></span>
+            <input asp-for="Fondo" class="form-input" type="number" step="0.01" />
+            <span asp-validation-for="Fondo" class="validation-message"></span>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-3">
+    <div class="form-row">
+        <div class="form-group">
             <label asp-for="M2Terreno">M² de Terreno</label>
-            <input asp-for="M2Terreno" class="form-control" type="number" step="0.01" />
-            <span asp-validation-for="M2Terreno" class="text-danger"></span>
+            <input asp-for="M2Terreno" class="form-input" type="number" step="0.01" />
+            <span asp-validation-for="M2Terreno" class="validation-message"></span>
         </div>
-        <div class="col-md-6 mb-3">
+        <div class="form-group">
             <label asp-for="M2Construccion">M² de Construcción</label>
-            <input asp-for="M2Construccion" class="form-control" type="number" step="0.01" />
-            <span asp-validation-for="M2Construccion" class="text-danger"></span>
+            <input asp-for="M2Construccion" class="form-input" type="number" step="0.01" />
+            <span asp-validation-for="M2Construccion" class="validation-message"></span>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-3">
+    <div class="form-row">
+        <div class="form-group">
             <label asp-for="CoordenadaX">Coordenada X (Longitud)</label>
-            <input asp-for="CoordenadaX" class="form-control" type="number" step="any" />
-            <span asp-validation-for="CoordenadaX" class="text-danger"></span>
+            <input asp-for="CoordenadaX" class="form-input" type="text" />
+            <span asp-validation-for="CoordenadaX" class="validation-message"></span>
         </div>
-        <div class="col-md-6 mb-3">
+        <div class="form-group">
             <label asp-for="CoordenadaY">Coordenada Y (Latitud)</label>
-            <input asp-for="CoordenadaY" class="form-control" type="number" step="any" />
-            <span asp-validation-for="CoordenadaY" class="text-danger"></span>
+            <input asp-for="CoordenadaY" class="form-input" type="text" />
+            <span asp-validation-for="CoordenadaY" class="validation-message"></span>
         </div>
     </div>
 
-    <button type="submit" class="btn btn-success mt-3">Guardar registro</button>
+
+    <button type="submit" class="submit-button">Guardar registro</button>
 </form>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.querySelectorAll('input[asp-for="CoordenadaX"], input[asp-for="CoordenadaY"]').forEach(input => {
+            input.addEventListener('input', () => {
+                // Solo permitir números, punto, signo negativo y eliminar otros caracteres
+                input.value = input.value.replace(/[^0-9.-]/g, '');
+            });
+        });
+    </script>
 }
+

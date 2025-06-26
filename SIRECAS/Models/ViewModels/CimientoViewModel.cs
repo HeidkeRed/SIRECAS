@@ -2,7 +2,7 @@
 
 namespace SIRECAS.Models.ViewModels
 {
-    public class CimientoViewModel
+    public class CimientosViewModel
     {
         [Required]
         public int IdIdentificacion { get; set; }
@@ -22,7 +22,7 @@ namespace SIRECAS.Models.ViewModels
         [Display(Name = "Losa de cimentación")]
         public bool LosaCimentacion { get; set; }
 
-        [Display(Name = "Otros cimientos")]
+        [Display(Name = "Otros Cimientos")]
         public string? OtrosCimientos { get; set; }
 
         [Display(Name = "Observaciones")]

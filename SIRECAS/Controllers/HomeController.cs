@@ -14,6 +14,8 @@ namespace SIRECAS.Controllers
             _logger = logger;
         }
 
+        // Evita que el navegador guarde caché del Index (página pública de inicio)
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Index()
         {
             var idUsuario = HttpContext.Session.GetInt32("IdUsuario");
@@ -26,22 +28,10 @@ namespace SIRECAS.Controllers
 
             return View(); // Si no ha iniciado sesión, muestra Index normal
         }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
         [Autorizado(1, 2, 3)]
         public IActionResult Inicio()
         {
             return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }
